@@ -1,0 +1,121 @@
+[gd_scene load_steps=8 format=3 uid="uid://dp2m5t6jlvmut"]
+
+[ext_resource type="Script" path="res://scripts/Flycam.gd" id="1_sxlxr"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ekj6a"]
+sky_top_color = Color(0.55, 0.55, 0.55, 1)
+sky_horizon_color = Color(0.6875, 0.6875, 0.6875, 1)
+ground_bottom_color = Color(0.2, 0.2, 0.2, 1)
+ground_horizon_color = Color(0.6875, 0.6875, 0.6875, 1)
+
+[sub_resource type="Sky" id="Sky_1irt4"]
+sky_material = SubResource("ProceduralSkyMaterial_ekj6a")
+
+[sub_resource type="Environment" id="Environment_bnf3o"]
+background_mode = 2
+sky = SubResource("Sky_1irt4")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3olws"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_74846"]
+albedo_color = Color(0.34, 0.846, 1, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lfqjx"]
+albedo_color = Color(0.72, 0.1944, 0.1944, 1)
+
+[node name="Root" type="Node"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_bnf3o")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Ground" type="CSGBox3D" parent="."]
+transform = Transform3D(1000, 0, 0, 0, 1, 0, 0, 0, 1000, 0, -0.5, 0)
+use_collision = true
+
+[node name="Player" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)
+
+[node name="Camera3D" type="Camera3D" parent="Player"]
+script = ExtResource("1_sxlxr")
+
+[node name="Blue Boxes" type="Node3D" parent="."]
+
+[node name="Box" type="RigidBody3D" parent="Blue Boxes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.34927, 0)
+
+[node name="Collider" type="CollisionShape3D" parent="Blue Boxes/Box"]
+shape = SubResource("BoxShape3D_3olws")
+
+[node name="Mesh" type="CSGBox3D" parent="Blue Boxes/Box"]
+material_override = SubResource("StandardMaterial3D_74846")
+
+[node name="Box2" type="RigidBody3D" parent="Blue Boxes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 2.69854, 2)
+
+[node name="Collider" type="CollisionShape3D" parent="Blue Boxes/Box2"]
+shape = SubResource("BoxShape3D_3olws")
+
+[node name="Mesh" type="CSGBox3D" parent="Blue Boxes/Box2"]
+material_override = SubResource("StandardMaterial3D_74846")
+
+[node name="Box3" type="RigidBody3D" parent="Blue Boxes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.02478, 4.49448, -0.93961)
+
+[node name="Collider" type="CollisionShape3D" parent="Blue Boxes/Box3"]
+shape = SubResource("BoxShape3D_3olws")
+
+[node name="Mesh" type="CSGBox3D" parent="Blue Boxes/Box3"]
+material_override = SubResource("StandardMaterial3D_74846")
+
+[node name="Box4" type="RigidBody3D" parent="Blue Boxes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 2.69854, -2.22453)
+
+[node name="Collider" type="CollisionShape3D" parent="Blue Boxes/Box4"]
+shape = SubResource("BoxShape3D_3olws")
+
+[node name="Mesh" type="CSGBox3D" parent="Blue Boxes/Box4"]
+material_override = SubResource("StandardMaterial3D_74846")
+
+[node name="Red Boxes" type="Node3D" parent="."]
+
+[node name="Box" type="RigidBody3D" parent="Red Boxes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.38864, 2.69854, -2.22453)
+mass = 5.0
+
+[node name="Collider" type="CollisionShape3D" parent="Red Boxes/Box"]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
+shape = SubResource("BoxShape3D_3olws")
+
+[node name="Mesh" type="CSGBox3D" parent="Red Boxes/Box"]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_lfqjx")
+
+[node name="Box2" type="RigidBody3D" parent="Red Boxes"]
+transform = Transform3D(0.655585, 0, -0.755122, 0, 1, 0, 0.755122, 0, 0.655585, -3.90129, 2.30149, -3.77177)
+mass = 5.0
+
+[node name="Collider" type="CollisionShape3D" parent="Red Boxes/Box2"]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
+shape = SubResource("BoxShape3D_3olws")
+
+[node name="Mesh" type="CSGBox3D" parent="Red Boxes/Box2"]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_lfqjx")
+
+[node name="Box3" type="RigidBody3D" parent="Red Boxes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.38864, 3.21217, -3.9659)
+mass = 5.0
+
+[node name="Collider" type="CollisionShape3D" parent="Red Boxes/Box3"]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
+shape = SubResource("BoxShape3D_3olws")
+
+[node name="Mesh" type="CSGBox3D" parent="Red Boxes/Box3"]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_lfqjx")
