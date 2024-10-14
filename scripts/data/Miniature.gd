@@ -37,6 +37,9 @@ func mass() -> float:
 func instantiate(instantiator: Node3D, at: Vector3) -> Node3D:
 	var rb = RigidBody3D.new()
 	instantiator.get_tree().root.add_child(rb)
+	rb.set_script(InteractibleMiniature)
+	rb._miniature = self
+	
 	rb.global_position = at
 	rb.mass = mass()
 

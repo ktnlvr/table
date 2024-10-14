@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://dlfkblp1gg5h4"]
+[gd_scene load_steps=4 format=3 uid="uid://dlfkblp1gg5h4"]
 
 [ext_resource type="Script" path="res://scripts/controls/Flycam.gd" id="1_frclp"]
 [ext_resource type="Resource" uid="uid://c7v7qhq0k2ha7" path="res://data/miniatures/Teapot.tres" id="2_y24hh"]
+[ext_resource type="Theme" uid="uid://e58brej7v4r5" path="res://ui/main.tres" id="3_dw5ud"]
 
 [node name="Player" type="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)
@@ -20,8 +21,15 @@ offset_top = 20.0
 offset_right = 312.0
 offset_bottom = -20.0
 grow_vertical = 2
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme = ExtResource("3_dw5ud")
 theme_override_font_sizes/font_size = 36
 text = "Hello, world!
 "
 vertical_alignment = 2
+
+[node name="Hover Label" type="Label" parent="Camera/Canvas"]
+offset_right = 200.0
+offset_bottom = 38.0
+theme = ExtResource("3_dw5ud")
+theme_override_font_sizes/font_size = 32
+text = "Lortem Ipsum"

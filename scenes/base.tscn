@@ -1,6 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://dp2m5t6jlvmut"]
+[gd_scene load_steps=9 format=3 uid="uid://dp2m5t6jlvmut"]
 
 [ext_resource type="PackedScene" uid="uid://dlfkblp1gg5h4" path="res://scenes/prefabs/player.tscn" id="1_tno6j"]
+[ext_resource type="Script" path="res://scripts/interactions/InteractibleMiniature.gd" id="2_lxjnp"]
+[ext_resource type="Resource" uid="uid://bksw1istoywkw" path="res://data/miniatures/Box.tres" id="3_y2gcw"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ekj6a"]
 sky_top_color = Color(0.55, 0.55, 0.55, 1)
@@ -20,11 +22,7 @@ glow_enabled = true
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_3olws"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_74846"]
-albedo_color = Color(0.34, 0.846, 1, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lfqjx"]
-albedo_color = Color(0.72, 0.1944, 0.1944, 1)
+[sub_resource type="BoxMesh" id="BoxMesh_0sj2g"]
 
 [node name="Root" type="Node"]
 
@@ -43,76 +41,17 @@ use_collision = true
 
 [node name="Blue Boxes" type="Node3D" parent="."]
 
-[node name="Box" type="RigidBody3D" parent="Blue Boxes"]
+[node name="Box" type="RigidBody3D" parent="Blue Boxes" node_paths=PackedStringArray("_rigidbody", "_mesh", "_collider")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.34927, 0)
+script = ExtResource("2_lxjnp")
+_rigidbody = NodePath(".")
+_mesh = NodePath("Mesh")
+_collider = NodePath("Collider")
+_miniature = ExtResource("3_y2gcw")
 
 [node name="Collider" type="CollisionShape3D" parent="Blue Boxes/Box"]
+visible = false
 shape = SubResource("BoxShape3D_3olws")
 
-[node name="Mesh" type="CSGBox3D" parent="Blue Boxes/Box"]
-material_override = SubResource("StandardMaterial3D_74846")
-
-[node name="Box2" type="RigidBody3D" parent="Blue Boxes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 2.69854, 2)
-
-[node name="Collider" type="CollisionShape3D" parent="Blue Boxes/Box2"]
-shape = SubResource("BoxShape3D_3olws")
-
-[node name="Mesh" type="CSGBox3D" parent="Blue Boxes/Box2"]
-material_override = SubResource("StandardMaterial3D_74846")
-
-[node name="Box3" type="RigidBody3D" parent="Blue Boxes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.02478, 4.49448, -0.93961)
-
-[node name="Collider" type="CollisionShape3D" parent="Blue Boxes/Box3"]
-shape = SubResource("BoxShape3D_3olws")
-
-[node name="Mesh" type="CSGBox3D" parent="Blue Boxes/Box3"]
-material_override = SubResource("StandardMaterial3D_74846")
-
-[node name="Box4" type="RigidBody3D" parent="Blue Boxes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 2.69854, -2.22453)
-
-[node name="Collider" type="CollisionShape3D" parent="Blue Boxes/Box4"]
-shape = SubResource("BoxShape3D_3olws")
-
-[node name="Mesh" type="CSGBox3D" parent="Blue Boxes/Box4"]
-material_override = SubResource("StandardMaterial3D_74846")
-
-[node name="Red Boxes" type="Node3D" parent="."]
-
-[node name="Box" type="RigidBody3D" parent="Red Boxes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.38864, 2.69854, -2.22453)
-mass = 5.0
-
-[node name="Collider" type="CollisionShape3D" parent="Red Boxes/Box"]
-transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
-shape = SubResource("BoxShape3D_3olws")
-
-[node name="Mesh" type="CSGBox3D" parent="Red Boxes/Box"]
-transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_lfqjx")
-
-[node name="Box2" type="RigidBody3D" parent="Red Boxes"]
-transform = Transform3D(0.655585, 0, -0.755122, 0, 1, 0, 0.755122, 0, 0.655585, -3.90129, 2.30149, -3.77177)
-mass = 5.0
-
-[node name="Collider" type="CollisionShape3D" parent="Red Boxes/Box2"]
-transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
-shape = SubResource("BoxShape3D_3olws")
-
-[node name="Mesh" type="CSGBox3D" parent="Red Boxes/Box2"]
-transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_lfqjx")
-
-[node name="Box3" type="RigidBody3D" parent="Red Boxes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.38864, 3.21217, -3.9659)
-mass = 5.0
-
-[node name="Collider" type="CollisionShape3D" parent="Red Boxes/Box3"]
-transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
-shape = SubResource("BoxShape3D_3olws")
-
-[node name="Mesh" type="CSGBox3D" parent="Red Boxes/Box3"]
-transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_lfqjx")
+[node name="Mesh" type="CSGMesh3D" parent="Blue Boxes/Box"]
+mesh = SubResource("BoxMesh_0sj2g")

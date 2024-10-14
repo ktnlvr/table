@@ -1,0 +1,9 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://e58brej7v4r5"]
+
+[ext_resource type="FontFile" uid="uid://doka7ypylpn25" path="res://ui/Roboto-Medium.ttf" id="1_njfpn"]
+
+[resource]
+default_font = ExtResource("1_njfpn")
+default_font_size = 16
+Label/colors/font_shadow_color = Color(0, 0, 0, 1)
+Label/constants/shadow_offset_y = 1

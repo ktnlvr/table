@@ -2,6 +2,7 @@ extends Camera3D
 
 @onready var parent = $".."
 @onready var status = $"Canvas/Status Label"
+@onready var hover = $"Canvas/Hover Label"
 
 const INTERACTION_RAY_LENGTH = 1200.
 
@@ -27,7 +28,7 @@ var last_raycast_to := Vector3.ZERO
 
 func try_grab(result):
 	if result:
-		if result['collider'] is RigidBody3D:
+		if result['collider'] is InteractibleMiniature:
 			held_item = result['collider']
 			held_item.angular_velocity = Vector3.ZERO
 			held_item.linear_velocity = Vector3.ZERO
@@ -64,6 +65,14 @@ func _update_status_text():
 	status.text = ""
 	status.text += "Mode: " + _mode_to_str() + "\n"
 	status.text += ""
+
+func _update_hover_text(result):
+	if not result or not (result['collider'] is Interactible):
+		hover.text = ""
+		return
+	var mouse_pos = get_viewport().get_mouse_position()
+	hover.text = result['collider'].display_name()
+	hover.position = mouse_pos + Vector2(15, -15)
 
 func _process(dt: float) -> void:
 	_update_status_text()
@@ -125,4 +134,5 @@ func _process(dt: float) -> void:
 	if result and Input.is_key_pressed(KEY_T):
 		var thing = active_miniature.instantiate(self, result['position'] + Vector3.UP * 3)
 	
+	_update_hover_text(result)
 	_process_mode(dt, result)
