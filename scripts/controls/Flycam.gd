@@ -1,6 +1,7 @@
 extends Camera3D
 
 @onready var parent = $".."
+@onready var status = $"Canvas/Status Label"
 
 const INTERACTION_RAY_LENGTH = 1200.
 
@@ -21,6 +22,8 @@ var held_distance = 0
 
 var last_raycast_from := Vector3.ZERO 
 var last_raycast_to := Vector3.ZERO
+
+@export var active_miniature: Miniature
 
 func try_grab(result):
 	if result:
@@ -44,8 +47,6 @@ func _process_horizontal_grab(dt, raycast):
 		
 		if Input.is_action_just_pressed("Do"):
 			held_item = null
-		if Input.is_action_just_released("Do"):
-			held_item.global_position = target
 	else:
 		if Input.is_action_just_pressed("Do"):
 			try_grab(raycast)
@@ -54,7 +55,19 @@ func _process_mode(dt, hovered):
 	if mode == HORIZONTAL_GRAB:
 		_process_horizontal_grab(dt, hovered)
 
+func _mode_to_str() -> String:
+	if mode == HORIZONTAL_GRAB:
+		return "Horizontal Grab"
+	return "?????"
+
+func _update_status_text():
+	status.text = ""
+	status.text += "Mode: " + _mode_to_str() + "\n"
+	status.text += ""
+
 func _process(dt: float) -> void:
+	_update_status_text()
+	
 	if Input.is_action_just_pressed("Lock Height"):
 		locked_height = not locked_height
 	
@@ -109,5 +122,7 @@ func _process(dt: float) -> void:
 		query.exclude = Array([held_item.get_rid()])
 	
 	var result = space.intersect_ray(query)
+	if result and Input.is_key_pressed(KEY_T):
+		var thing = active_miniature.instantiate(self, result['position'] + Vector3.UP * 3)
 	
 	_process_mode(dt, result)

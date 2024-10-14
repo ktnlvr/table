@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://dlfkblp1gg5h4"]
+
+[ext_resource type="Script" path="res://scripts/Flycam.gd" id="1_frclp"]
+[ext_resource type="Resource" uid="uid://bksw1istoywkw" path="res://data/miniatures/Box.tres" id="2_eue8a"]
+
+[node name="Player" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)
+
+[node name="Camera" type="Camera3D" parent="."]
+script = ExtResource("1_frclp")
+active_miniature = ExtResource("2_eue8a")
+
+[node name="Canvas" type="CanvasLayer" parent="Camera"]
+
+[node name="Status Label" type="Label" parent="Camera/Canvas"]
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 312.0
+offset_bottom = -20.0
+grow_vertical = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 36
+text = "Hello, world!
+"
+vertical_alignment = 2

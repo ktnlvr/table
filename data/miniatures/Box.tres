@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Miniature" load_steps=3 format=3 uid="uid://bksw1istoywkw"]
+
+[ext_resource type="Script" path="res://scripts/data/Miniature.gd" id="1_ifjrw"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_bhi01"]
+
+[resource]
+script = ExtResource("1_ifjrw")
+display_name = "Box"
+mesh = SubResource("BoxMesh_bhi01")
+density = 1.0
