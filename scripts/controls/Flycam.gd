@@ -1,8 +1,8 @@
 extends Camera3D
 
 @onready var parent = $".."
-@onready var status = $"Canvas/Status Label"
-@onready var hover = $"Canvas/Hover Label"
+@onready var status_label = $"Canvas/Status Label"
+@onready var hover_label = $"Canvas/Hover Label"
 
 const INTERACTION_RAY_LENGTH = 1200.
 
@@ -62,17 +62,17 @@ func _mode_to_str() -> String:
 	return "?????"
 
 func _update_status_text():
-	status.text = ""
-	status.text += "Mode: " + _mode_to_str() + "\n"
-	status.text += ""
+	status_label.text = ""
+	status_label.text += "Mode: " + _mode_to_str() + "\n"
+	status_label.text += ""
 
 func _update_hover_text(result):
+	hover_label.text = ""
 	if not result or not (result['collider'] is Interactible):
-		hover.text = ""
 		return
 	var mouse_pos = get_viewport().get_mouse_position()
-	hover.text = result['collider'].display_name()
-	hover.position = mouse_pos + Vector2(15, -15)
+	hover_label.text = result['collider'].display_name()
+	hover_label.position = mouse_pos + Vector2(15, -15)
 
 static func random_direction() -> Vector3:
 	var theta := randf() * TAU
@@ -80,12 +80,7 @@ static func random_direction() -> Vector3:
 	var sin_phi := sin(phi)
 	return Vector3(cos(theta) * sin_phi, sin(theta) * sin_phi, cos(phi))
 
-func _process(dt: float) -> void:
-	_update_status_text()
-	
-	if Input.is_action_just_pressed("Lock Height"):
-		locked_height = not locked_height
-	
+func _handle_movement(dt: float):
 	var back_forth = Input.get_axis("Back", "Forward")
 	var up_down = Input.get_axis("Down", "Up")
 	var left_right = Input.get_axis("Left", "Right")
@@ -108,7 +103,12 @@ func _process(dt: float) -> void:
 		direction = (lr + ud + fb).normalized()
 	var displacement = direction * speed * dt
 	parent.translate(displacement)
-	
+
+func _handle_toggles():
+	if Input.is_action_just_pressed("Lock Height"):
+		locked_height = not locked_height
+
+func _handle_panning(dt: float):
 	var panning = Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
 
 	var current_mouse_pos = get_viewport().get_mouse_position()
@@ -117,34 +117,46 @@ func _process(dt: float) -> void:
 	
 	if panning:
 		self.rotate_x(rad_to_deg(-mouse_delta.y) * ROTATION_SPEED)
-		parent.rotate_y(rad_to_deg(-mouse_delta.x) * ROTATION_SPEED)
+		parent.rotate_y(rad_to_deg(-mouse_delta.x) * ROTATION_SPEED)	
 
-	var hovered_item = null
+func _hover_raycast():
+	var mouse_pos = get_viewport().get_mouse_position()
 	
-	if not Input.is_action_pressed("Freeze"):
-		last_raycast_from = self.global_position
-		last_raycast_to = last_raycast_from + self.project_ray_normal(current_mouse_pos) * INTERACTION_RAY_LENGTH
-		if held_item:
-			held_item.linear_velocity = Vector3.ZERO
-			held_item.angular_velocity = Vector3.ZERO
+	var from = self.global_position
+	var to = from + self.project_ray_normal(mouse_pos) * INTERACTION_RAY_LENGTH
+	if held_item:
+		held_item.linear_velocity = Vector3.ZERO
+		held_item.angular_velocity = Vector3.ZERO
 	var space = get_world_3d().direct_space_state
 
 	var query = PhysicsRayQueryParameters3D.new()
-	query.from = last_raycast_from
-	query.to = last_raycast_to
+	query.from = from
+	query.to = to
 	query.collide_with_areas = false
 	if held_item:
 		query.exclude = Array([held_item.get_rid()])
 	
-	var result = space.intersect_ray(query)
-	if result:
-		var hovered = result['collider']
-		if Input.is_action_just_pressed("Reroll"):
-			const REROLL_JUMP_HEIGHT = 2
-			var jump_velocity = sqrt(2 * 9.8 * REROLL_JUMP_HEIGHT)
-			if hovered is RigidBody3D:
-				hovered.linear_velocity += Vector3.UP * jump_velocity
-				hovered.angular_velocity += random_direction() * (4 * randf() * TAU + PI)
+	return space.intersect_ray(query)
 
+func _handle_poke_reroll(target):
+	const REROLL_JUMP_HEIGHT = 2
+	var jump_velocity = sqrt(2 * 9.8 * REROLL_JUMP_HEIGHT)
+	if target is RigidBody3D:
+		target.linear_velocity += Vector3.UP * jump_velocity
+		target.angular_velocity += random_direction() * (4 * randf() * TAU + PI)
+
+func _handle_poke(result: Dictionary):
+	if result:
+		var target = result['collider']
+		if Input.is_action_just_pressed("Reroll"):
+			_handle_poke_reroll(target)
+
+func _process(dt: float) -> void:
+	_update_status_text()
+	_handle_toggles()
+	_handle_movement(dt)
+	_handle_panning(dt)
+	var result = _hover_raycast()
+	_handle_poke(result)
 	_update_hover_text(result)
 	_process_mode(dt, result)
