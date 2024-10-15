@@ -17,18 +17,19 @@ enum {
 }
 
 var locked_height = false
+var interact_with_frozen = false
+
 var mode = HORIZONTAL_GRAB
 var held_item: RigidBody3D = null
 var held_distance = 0
-
-var last_raycast_from := Vector3.ZERO 
-var last_raycast_to := Vector3.ZERO
 
 @export var active_miniature: Miniature
 
 func try_grab(result):
 	if result:
 		if result['collider'] is InteractibleMiniature:
+			if result['collider'].freeze:
+				return
 			held_item = result['collider']
 			held_item.angular_velocity = Vector3.ZERO
 			held_item.linear_velocity = Vector3.ZERO
@@ -70,6 +71,9 @@ func _update_hover_text(result):
 	hover_label.text = ""
 	if not result or not (result['collider'] is Interactible):
 		return
+	if result['collider'] is RigidBody3D:
+		if result['collider'].freeze:
+			return
 	var mouse_pos = get_viewport().get_mouse_position()
 	hover_label.text = result['collider'].display_name()
 	hover_label.position = mouse_pos + Vector2(15, -15)
@@ -105,8 +109,10 @@ func _handle_movement(dt: float):
 	parent.translate(displacement)
 
 func _handle_toggles():
-	if Input.is_action_just_pressed("Lock Height"):
+	if Input.is_action_just_pressed("Toggle Lock Height"):
 		locked_height = not locked_height
+	if Input.is_action_just_pressed("Toggle Freeze"):
+		interact_with_frozen = not interact_with_frozen
 
 func _handle_panning(dt: float):
 	var panning = Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
@@ -145,11 +151,17 @@ func _handle_poke_reroll(target):
 		target.linear_velocity += Vector3.UP * jump_velocity
 		target.angular_velocity += random_direction() * (4 * randf() * TAU + PI)
 
+func _handle_poke_freeze(target):
+	if target is RigidBody3D:
+		target.freeze = not target.freeze
+
 func _handle_poke(result: Dictionary):
 	if result:
 		var target = result['collider']
 		if Input.is_action_just_pressed("Reroll"):
 			_handle_poke_reroll(target)
+		if Input.is_action_just_pressed("Freeze"):
+			_handle_poke_freeze(target)
 
 func _process(dt: float) -> void:
 	_update_status_text()
