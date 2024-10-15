@@ -123,6 +123,12 @@ func _handle_panning(dt: float):
 	
 	if panning:
 		self.rotate_x(rad_to_deg(-mouse_delta.y) * ROTATION_SPEED)
+
+		# for rotation.x == TAU the WS axis of movement gets flipped
+		# crude fix, but rather logical
+		const EPSILON = 0.000001
+		self.rotation.x = clamp(self.rotation.x, -TAU / 4 + EPSILON, TAU / 4 - EPSILON)
+		
 		parent.rotate_y(rad_to_deg(-mouse_delta.x) * ROTATION_SPEED)	
 
 func _hover_raycast():
