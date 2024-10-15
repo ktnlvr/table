@@ -77,6 +77,9 @@ func instantiate(instantiator: Node3D, at: Vector3) -> Node3D:
 	instantiator.get_tree().root.add_child(rb)
 	var script = load("res://scripts/interactions/InteractibleMiniature.gd")
 	rb.set_script(script)
+	if rb is InteractibleMiniature:
+		rb._net_fallback_peer = instantiator.get_multiplayer_authority()
+	
 	rb._miniature = self
 	rb.set_multiplayer_authority(1)
 	

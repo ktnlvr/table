@@ -5,6 +5,8 @@ class_name InteractibleMiniature extends Interactible
 @export var _collider: CollisionShape3D
 @export var _miniature: Miniature
 
+var _net_fallback_peer: int = 1
+
 var busy = false;
 
 func top_face():
@@ -53,7 +55,10 @@ func take_puppeteer():
 @rpc("call_local")
 func release_puppeteer():
 	busy = false
-	set_multiplayer_authority(1)
+	if _net_fallback_peer in multiplayer.get_peers():
+		set_multiplayer_authority(_net_fallback_peer)
+	else:
+		set_multiplayer_authority(1)
 
 func _physics_process(dt) -> void:
 	if is_multiplayer_authority() and not self.sleeping:
