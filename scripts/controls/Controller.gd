@@ -29,6 +29,9 @@ func try_grab(result):
 	if result:
 		var target = result['collider']
 		if target is InteractibleMiniature:
+			if not target.can_puppeteer():
+				return
+			target.take_puppeteer.rpc()
 			if interact_with_frozen:
 				target.freeze = false
 			if target.freeze:
@@ -36,6 +39,10 @@ func try_grab(result):
 			held_item = result['collider']
 			held_item.angular_velocity = Vector3.ZERO
 			held_item.linear_velocity = Vector3.ZERO
+
+func release_held():
+	held_item.release_puppeteer.rpc()
+	held_item = null
 
 func _process_horizontal_grab(dt, raycast):
 	if held_item:
@@ -51,7 +58,7 @@ func _process_horizontal_grab(dt, raycast):
 		held_item.linear_velocity = direction * K
 		
 		if Input.is_action_just_pressed("Do"):
-			held_item = null
+			release_held()
 	else:
 		if Input.is_action_just_pressed("Do"):
 			try_grab(raycast)
