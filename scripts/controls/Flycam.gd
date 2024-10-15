@@ -27,8 +27,11 @@ var held_distance = 0
 
 func try_grab(result):
 	if result:
-		if result['collider'] is InteractibleMiniature:
-			if result['collider'].freeze:
+		var target = result['collider']
+		if target is InteractibleMiniature:
+			if interact_with_frozen:
+				target.freeze = false
+			if target.freeze:
 				return
 			held_item = result['collider']
 			held_item.angular_velocity = Vector3.ZERO
@@ -72,7 +75,7 @@ func _update_hover_text(result):
 	if not result or not (result['collider'] is Interactible):
 		return
 	if result['collider'] is RigidBody3D:
-		if result['collider'].freeze:
+		if result['collider'].freeze and not interact_with_frozen:
 			return
 	var mouse_pos = get_viewport().get_mouse_position()
 	hover_label.text = result['collider'].display_name()
@@ -105,6 +108,7 @@ func _handle_movement(dt: float):
 		var ud = self.basis.y * up_down
 		var fb = -self.basis.z * back_forth
 		direction = (lr + ud + fb).normalized()
+
 	var displacement = direction * speed * dt
 	parent.translate(displacement)
 
