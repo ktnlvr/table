@@ -73,9 +73,12 @@ func deduce_faces_values():
 
 func instantiate(instantiator: Node3D, at: Vector3) -> Node3D:
 	var rb = RigidBody3D.new()
+	
 	instantiator.get_tree().root.add_child(rb)
-	rb.set_script(InteractibleMiniature)
+	var script = load("res://scripts/interactions/InteractibleMiniature.gd")
+	rb.set_script(script)
 	rb._miniature = self
+	rb.set_multiplayer_authority(1)
 	
 	rb.global_position = at
 	rb.mass = mass()
@@ -89,5 +92,8 @@ func instantiate(instantiator: Node3D, at: Vector3) -> Node3D:
 	var collider = CollisionShape3D.new()
 	collider.shape = shape()
 	rb.add_child(collider)
+	
+	rb.set_process(true)
+	rb.set_physics_process(true)
 	
 	return rb

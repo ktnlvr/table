@@ -54,4 +54,19 @@ shape = SubResource("BoxShape3D_3olws")
 [node name="Mesh" type="CSGMesh3D" parent="Blue Boxes/Box"]
 mesh = SubResource("BoxMesh_je77o")
 
+[node name="Box2" type="RigidBody3D" parent="Blue Boxes" node_paths=PackedStringArray("_rigidbody", "_mesh", "_collider")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.14135, 6.69854, 0)
+script = ExtResource("2_lxjnp")
+_rigidbody = NodePath(".")
+_mesh = NodePath("Mesh")
+_collider = NodePath("Collider")
+_miniature = ExtResource("3_y2gcw")
+
+[node name="Collider" type="CollisionShape3D" parent="Blue Boxes/Box2"]
+visible = false
+shape = SubResource("BoxShape3D_3olws")
+
+[node name="Mesh" type="CSGMesh3D" parent="Blue Boxes/Box2"]
+mesh = SubResource("BoxMesh_je77o")
+
 [node name="Lobby" parent="." instance=ExtResource("4_0aou5")]

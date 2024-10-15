@@ -155,7 +155,7 @@ func _hover_raycast():
 	return space.intersect_ray(query)
 
 func _handle_poke_reroll(target):
-	target.sync_reroll.rpc()
+	target.sync_reroll.rpc(randf())
 
 func _handle_poke_freeze(target):
 	target.sync_toggle_freeze.rpc()
@@ -171,7 +171,11 @@ func _handle_poke(result: Dictionary):
 				_handle_poke_freeze(target)
 			
 	if Input.is_key_pressed(KEY_T):
-		active_miniature.instantiate(self, result['position'] + result['normal'])
+		self.instantiate.rpc(result['position'] + result['normal'])
+
+@rpc("call_local")
+func instantiate(at: Vector3):
+	var instance = load("res://data/miniatures/D6.tres").instantiate(self, at)
 
 func _process(dt: float) -> void:
 	if not is_multiplayer_authority():
