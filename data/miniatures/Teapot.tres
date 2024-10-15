@@ -12,3 +12,4 @@ script = ExtResource("2_acbrf")
 display_name = "Utah Teapot"
 material = SubResource("StandardMaterial3D_oytmu")
 density = 1.0
+face_values = {}

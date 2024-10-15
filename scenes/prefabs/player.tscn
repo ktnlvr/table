@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dlfkblp1gg5h4"]
 
 [ext_resource type="Script" path="res://scripts/controls/Flycam.gd" id="1_frclp"]
-[ext_resource type="Resource" uid="uid://c7v7qhq0k2ha7" path="res://data/miniatures/Teapot.tres" id="2_y24hh"]
+[ext_resource type="Resource" uid="uid://b6ts5l3pgjq5h" path="res://data/miniatures/D6.tres" id="2_vkcn1"]
 [ext_resource type="Theme" uid="uid://e58brej7v4r5" path="res://ui/main.tres" id="3_dw5ud"]
 
 [node name="Player" type="Node3D"]
@@ -9,7 +9,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)
 
 [node name="Camera" type="Camera3D" parent="."]
 script = ExtResource("1_frclp")
-active_miniature = ExtResource("2_y24hh")
+active_miniature = ExtResource("2_vkcn1")
 
 [node name="Canvas" type="CanvasLayer" parent="Camera"]
 

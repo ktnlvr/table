@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://b78eh5bme8ymi"]
+
+[ext_resource type="Texture2D" uid="uid://chpdpth3xmdg8" path="res://data/sprites/d6.png" id="1_ms8ev"]
+
+[resource]
+shading_mode = 2
+albedo_texture = ExtResource("1_ms8ev")
+heightmap_scale = -6.22
+grow_amount = 0.213
+proximity_fade_distance = 2.0

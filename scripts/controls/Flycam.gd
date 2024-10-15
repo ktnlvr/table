@@ -172,6 +172,8 @@ func _handle_poke(result: Dictionary):
 			_handle_poke_reroll(target)
 		if Input.is_action_just_pressed("Freeze"):
 			_handle_poke_freeze(target)
+		if Input.is_key_pressed(KEY_T):
+			active_miniature.instantiate(self, result['position'] + result['normal'])
 
 func _process(dt: float) -> void:
 	_update_status_text()

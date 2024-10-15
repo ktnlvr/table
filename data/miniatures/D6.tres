@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Miniature" load_steps=4 format=3 uid="uid://b6ts5l3pgjq5h"]
+
+[ext_resource type="ArrayMesh" uid="uid://bu0qjtc78527m" path="res://data/meshes/Dice.obj" id="1_55yvj"]
+[ext_resource type="Script" path="res://scripts/data/Miniature.gd" id="1_q6cks"]
+[ext_resource type="Material" uid="uid://b78eh5bme8ymi" path="res://data/materials/d6.tres" id="2_22m10"]
+
+[resource]
+script = ExtResource("1_q6cks")
+display_name = "d6"
+_mesh = ExtResource("1_55yvj")
+material = ExtResource("2_22m10")
+density = 1.0
+face_values = {
+0: 1,
+1: 1,
+3: 3,
+5: 2,
+7: 6,
+9: 5,
+11: 4
+}
