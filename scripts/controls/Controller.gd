@@ -88,12 +88,6 @@ func _update_hover_text(result):
 	hover_label.text = result['collider'].display_name()
 	hover_label.position = mouse_pos + Vector2(15, -15)
 
-static func random_direction() -> Vector3:
-	var theta := randf() * TAU
-	var phi := acos(2.0 * randf() - 1.0)
-	var sin_phi := sin(phi)
-	return Vector3(cos(theta) * sin_phi, sin(theta) * sin_phi, cos(phi))
-
 func _handle_movement(dt: float):
 	var back_forth = Input.get_axis("Back", "Forward")
 	var up_down = Input.get_axis("Down", "Up")
@@ -161,25 +155,23 @@ func _hover_raycast():
 	return space.intersect_ray(query)
 
 func _handle_poke_reroll(target):
-	const REROLL_JUMP_HEIGHT = 2
-	var jump_velocity = sqrt(2 * 9.8 * REROLL_JUMP_HEIGHT)
-	if target is RigidBody3D:
-		target.linear_velocity += Vector3.UP * jump_velocity
-		target.angular_velocity += random_direction() * (4 * randf() * TAU + PI)
+	target.sync_reroll.rpc()
 
 func _handle_poke_freeze(target):
-	if target is RigidBody3D:
-		target.freeze = not target.freeze
+	target.sync_toggle_freeze.rpc()
 
 func _handle_poke(result: Dictionary):
 	if result:
 		var target = result['collider']
-		if Input.is_action_just_pressed("Reroll"):
-			_handle_poke_reroll(target)
-		if Input.is_action_just_pressed("Freeze"):
-			_handle_poke_freeze(target)
-		if Input.is_key_pressed(KEY_T):
-			active_miniature.instantiate(self, result['position'] + result['normal'])
+		
+		if target is InteractibleMiniature and target.can_puppeteer():
+			if Input.is_action_just_pressed("Reroll"):
+				_handle_poke_reroll(target)
+			if Input.is_action_just_pressed("Freeze"):
+				_handle_poke_freeze(target)
+			
+	if Input.is_key_pressed(KEY_T):
+		active_miniature.instantiate(self, result['position'] + result['normal'])
 
 func _process(dt: float) -> void:
 	if not is_multiplayer_authority():

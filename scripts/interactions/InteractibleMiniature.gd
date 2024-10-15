@@ -44,7 +44,6 @@ func can_puppeteer():
 
 @rpc("any_peer", "call_local")
 func take_puppeteer():
-	print(get_multiplayer_authority(), multiplayer.get_remote_sender_id())
 	if busy and get_multiplayer_authority() != multiplayer.get_remote_sender_id():
 		return
 	
@@ -57,7 +56,7 @@ func release_puppeteer():
 	set_multiplayer_authority(1)
 
 func _physics_process(dt) -> void:
-	if is_multiplayer_authority():
+	if is_multiplayer_authority() and not self.sleeping:
 		sync_physics_properties.rpc(
 			global_position,
 			global_rotation, 
@@ -73,3 +72,25 @@ func sync_physics_properties(pos, rot, lin_vel, ang_vel):
 	global_rotation = rot
 	self.linear_velocity = lin_vel
 	self.angular_velocity = ang_vel
+
+static func random_direction() -> Vector3:
+	var theta := randf() * TAU
+	var phi := acos(2.0 * randf() - 1.0)
+	var sin_phi := sin(phi)
+	return Vector3(cos(theta) * sin_phi, sin(theta) * sin_phi, cos(phi))
+
+@rpc("any_peer", "call_local")
+func sync_reroll():
+	if busy:
+		return
+	set_multiplayer_authority(1)
+	const REROLL_JUMP_HEIGHT = 2
+	var jump_velocity = sqrt(2 * 9.8 * REROLL_JUMP_HEIGHT)
+	self.linear_velocity += Vector3.UP * jump_velocity
+	self.angular_velocity += random_direction() * (4 * randf() * TAU + PI)
+
+@rpc("any_peer", "call_local")
+func sync_toggle_freeze():
+	if busy:
+		return
+	self.freeze = not self.freeze
