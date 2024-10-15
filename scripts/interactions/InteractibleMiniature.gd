@@ -46,7 +46,7 @@ func can_puppeteer():
 func take_puppeteer():
 	if busy and get_multiplayer_authority() != multiplayer.get_remote_sender_id():
 		return
-	
+
 	set_multiplayer_authority(multiplayer.get_remote_sender_id())
 	busy = true
 
@@ -56,7 +56,7 @@ func release_puppeteer():
 	set_multiplayer_authority(1)
 
 func _physics_process(dt) -> void:
-	if is_multiplayer_authority():
+	if is_multiplayer_authority() and not self.sleeping:
 		sync_physics_properties.rpc(
 			global_position,
 			global_rotation, 
