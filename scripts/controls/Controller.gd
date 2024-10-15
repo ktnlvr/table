@@ -1,8 +1,8 @@
-extends Camera3D
+extends Node3D
 
-@onready var parent = $".."
-@onready var status_label = $"Canvas/Status Label"
-@onready var hover_label = $"Canvas/Hover Label"
+@onready var status_label = $"Camera/Canvas/Status Label"
+@onready var hover_label = $"Camera/Canvas/Hover Label"
+@onready var camera = $"Camera"
 
 const INTERACTION_RAY_LENGTH = 1200.
 
@@ -99,18 +99,18 @@ func _handle_movement(dt: float):
 	var direction = Vector3.ZERO
 	if locked_height:
 		var horizontal_plane = Plane(Vector3.UP)
-		var fb = horizontal_plane.project(-self.basis.z).normalized() * back_forth
-		var lr = horizontal_plane.project(self.basis.x).normalized() * left_right
+		var fb = horizontal_plane.project(-camera.basis.z).normalized() * back_forth
+		var lr = horizontal_plane.project(camera.basis.x).normalized() * left_right
 		var ud = Vector3.UP * up_down
 		direction = (lr + fb).normalized() + ud
 	else:
-		var lr = self.basis.x * left_right
-		var ud = self.basis.y * up_down
-		var fb = -self.basis.z * back_forth
+		var lr = camera.basis.x * left_right
+		var ud = camera.basis.y * up_down
+		var fb = -camera.basis.z * back_forth
 		direction = (lr + ud + fb).normalized()
 
 	var displacement = direction * speed * dt
-	parent.translate(displacement)
+	translate(displacement)
 
 func _handle_toggles():
 	if Input.is_action_just_pressed("Toggle Lock Height"):
@@ -126,20 +126,19 @@ func _handle_panning(dt: float):
 	last_mouse_pos = current_mouse_pos
 	
 	if panning:
-		self.rotate_x(rad_to_deg(-mouse_delta.y) * ROTATION_SPEED)
+		camera.rotate_x(rad_to_deg(-mouse_delta.y) * ROTATION_SPEED)
 
 		# for rotation.x == TAU the WS axis of movement gets flipped
 		# crude fix, but rather logical
 		const EPSILON = 0.000001
-		self.rotation.x = clamp(self.rotation.x, -TAU / 4 + EPSILON, TAU / 4 - EPSILON)
-		
-		parent.rotate_y(rad_to_deg(-mouse_delta.x) * ROTATION_SPEED)	
+		camera.rotation.x = clamp(camera.rotation.x, -TAU / 4 + EPSILON, TAU / 4 - EPSILON)
+		self.rotate_y(rad_to_deg(-mouse_delta.x) * ROTATION_SPEED)	
 
 func _hover_raycast():
 	var mouse_pos = get_viewport().get_mouse_position()
 	
 	var from = self.global_position
-	var to = from + self.project_ray_normal(mouse_pos) * INTERACTION_RAY_LENGTH
+	var to = from + camera.project_ray_normal(mouse_pos) * INTERACTION_RAY_LENGTH
 	if held_item:
 		held_item.linear_velocity = Vector3.ZERO
 		held_item.angular_velocity = Vector3.ZERO
