@@ -21,7 +21,6 @@ func _on_host_pressed() -> void:
 	multiplayer.peer_connected.connect(
 		func (peer_id):
 			# TODO: check if this is even needed?
-			await get_tree().create_timer(0.5).timeout
 			add_newly_connected_player.rpc(peer_id)
 			add_previous_players.rpc_id(peer_id, connected_peers)
 			add_player(peer_id)
