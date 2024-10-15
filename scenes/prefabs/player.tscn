@@ -8,6 +8,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)
 script = ExtResource("1_frclp")
 
 [node name="Camera" type="Camera3D" parent="."]
+visible = false
 
 [node name="Canvas" type="CanvasLayer" parent="Camera"]
 

@@ -185,3 +185,13 @@ func _process(dt: float) -> void:
 	_handle_poke(result)
 	_update_hover_text(result)
 	_process_mode(dt, result)
+	sync_position.rpc(global_position)
+
+func _ready() -> void:
+	if not is_multiplayer_authority():
+		camera.queue_free()
+	name = str(get_multiplayer_authority())
+
+@rpc("unreliable")
+func sync_position(authority_position):
+	global_position = authority_position
