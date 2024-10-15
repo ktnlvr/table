@@ -1,8 +1,8 @@
 [gd_scene load_steps=9 format=3 uid="uid://dp2m5t6jlvmut"]
 
-[ext_resource type="PackedScene" uid="uid://dlfkblp1gg5h4" path="res://scenes/prefabs/player.tscn" id="1_tno6j"]
 [ext_resource type="Script" path="res://scripts/interactions/InteractibleMiniature.gd" id="2_lxjnp"]
 [ext_resource type="Resource" uid="uid://bksw1istoywkw" path="res://data/miniatures/Box.tres" id="3_y2gcw"]
+[ext_resource type="PackedScene" uid="uid://cpmsm4oe8oswl" path="res://scenes/lobby.tscn" id="4_0aou5"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ekj6a"]
 sky_top_color = Color(0.55, 0.55, 0.55, 1)
@@ -37,8 +37,6 @@ shadow_enabled = true
 transform = Transform3D(1000, 0, 0, 0, 1, 0, 0, 0, 1000, 0, -0.5, 0)
 use_collision = true
 
-[node name="Player" parent="." instance=ExtResource("1_tno6j")]
-
 [node name="Blue Boxes" type="Node3D" parent="."]
 
 [node name="Box" type="RigidBody3D" parent="Blue Boxes" node_paths=PackedStringArray("_rigidbody", "_mesh", "_collider")]
@@ -55,3 +53,5 @@ shape = SubResource("BoxShape3D_3olws")
 
 [node name="Mesh" type="CSGMesh3D" parent="Blue Boxes/Box"]
 mesh = SubResource("BoxMesh_je77o")
+
+[node name="Lobby" parent="." instance=ExtResource("4_0aou5")]

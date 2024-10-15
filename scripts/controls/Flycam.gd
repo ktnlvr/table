@@ -176,6 +176,8 @@ func _handle_poke(result: Dictionary):
 			active_miniature.instantiate(self, result['position'] + result['normal'])
 
 func _process(dt: float) -> void:
+	if not is_multiplayer_authority():
+		return
 	_update_status_text()
 	_handle_toggles()
 	_handle_movement(dt)
