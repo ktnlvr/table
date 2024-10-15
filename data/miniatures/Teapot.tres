@@ -1,6 +1,5 @@
-[gd_resource type="Resource" script_class="Miniature" load_steps=4 format=3 uid="uid://c7v7qhq0k2ha7"]
+[gd_resource type="Resource" script_class="Miniature" load_steps=3 format=3 uid="uid://c7v7qhq0k2ha7"]
 
-[ext_resource type="ArrayMesh" uid="uid://cet3vdcvmynbp" path="res://data/meshes/Teapot.obj" id="1_cqma3"]
 [ext_resource type="Script" path="res://scripts/data/Miniature.gd" id="2_acbrf"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oytmu"]
@@ -11,6 +10,5 @@ grow_amount = -0.369
 [resource]
 script = ExtResource("2_acbrf")
 display_name = "Utah Teapot"
-mesh = ExtResource("1_cqma3")
 material = SubResource("StandardMaterial3D_oytmu")
 density = 1.0

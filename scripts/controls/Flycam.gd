@@ -74,6 +74,12 @@ func _update_hover_text(result):
 	hover.text = result['collider'].display_name()
 	hover.position = mouse_pos + Vector2(15, -15)
 
+static func random_direction() -> Vector3:
+	var theta := randf() * TAU
+	var phi := acos(2.0 * randf() - 1.0)
+	var sin_phi := sin(phi)
+	return Vector3(cos(theta) * sin_phi, sin(theta) * sin_phi, cos(phi))
+
 func _process(dt: float) -> void:
 	_update_status_text()
 	
@@ -131,8 +137,14 @@ func _process(dt: float) -> void:
 		query.exclude = Array([held_item.get_rid()])
 	
 	var result = space.intersect_ray(query)
-	if result and Input.is_key_pressed(KEY_T):
-		var thing = active_miniature.instantiate(self, result['position'] + Vector3.UP * 3)
-	
+	if result:
+		var hovered = result['collider']
+		if Input.is_action_just_pressed("Reroll"):
+			const REROLL_JUMP_HEIGHT = 2
+			var jump_velocity = sqrt(2 * 9.8 * REROLL_JUMP_HEIGHT)
+			if hovered is RigidBody3D:
+				hovered.linear_velocity += Vector3.UP * jump_velocity
+				hovered.angular_velocity += random_direction() * (4 * randf() * TAU + PI)
+
 	_update_hover_text(result)
 	_process_mode(dt, result)
