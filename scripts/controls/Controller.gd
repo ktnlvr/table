@@ -4,6 +4,8 @@ extends Node3D
 @onready var hover_label = $"Camera/Canvas/Hover Label"
 @onready var camera = $"Camera"
 
+const EPSILON = 0.000001
+
 const INTERACTION_RAY_LENGTH = 1200.
 
 const MOVEMENT_SPEED = 10.
@@ -22,11 +24,18 @@ var locked_height = false
 var interact_with_frozen = false
 
 var mode = MODE_GRAB
+
+# MODE_GRAB
+const GRAB_HORIZONTAL_SPIN_DEG_PER_S = 1440
 var held_item: RigidBody3D = null
 var held_distance = 0
 
-var rulering = false
-var valid_ruler = false
+# MODE_RULER
+const MIN_RULER_LENGTH = 0.1
+const MAX_RULER_LENGTH = 60
+const RULER_EXTEND_SPEED = 20
+var is_ruler_valid = false
+var current_ruler_length = 10
 
 @export var active_miniature: Miniature
 
@@ -49,6 +58,11 @@ func release_held():
 	held_item.release_puppeteer.rpc()
 	held_item = null
 
+func get_mouse_scroll() -> int:
+	var scroll = -1 if Input.is_action_just_pressed("Gentle Down") else 0
+	scroll += 1 if Input.is_action_just_pressed("Gentle Up") else 0
+	return scroll
+
 func _process_grab(dt, raycast):
 	if held_item:
 		if not raycast:
@@ -68,21 +82,27 @@ func _process_grab(dt, raycast):
 		if Input.is_action_just_pressed("Do"):
 			try_grab(raycast)
 
+func _max_ruler_extension():
+	return max(0, floor(current_ruler_length))
+
 func _process_ruler(dt: float, raycast):
+	var length_extension = RULER_EXTEND_SPEED * dt * get_mouse_scroll()
+	current_ruler_length = clamp(current_ruler_length + length_extension, MIN_RULER_LENGTH + EPSILON, MAX_RULER_LENGTH)
+	
 	var held = Input.is_action_pressed("Do")
 	if raycast and held:
-		$Ruler/B.global_position = raycast['position']
+		var new_position = raycast['position']
+		var d = new_position - $Ruler/A.global_position
+		# TODO: do proper checks
+		var len = clamp(d.length(), 0, _max_ruler_extension())
+		$Ruler/B.global_position = $Ruler/A.global_position + d.normalized() * len
 
 	if Input.is_action_just_released("Do"):
-		if not raycast:
-			valid_ruler = false
-		else:
-			$Ruler/B.global_position = raycast['position']
-			valid_ruler = true
+		is_ruler_valid = !!raycast
 
 	if not raycast:
 		return
-	
+
 	if Input.is_action_just_pressed("Do"):
 		$Ruler/A.global_position = raycast['position']
 
@@ -101,7 +121,14 @@ func _mode_to_str() -> String:
 
 func _update_status_text():
 	status_label.text = ""
-	status_label.text += "Mode: " + _mode_to_str() + "\n"
+	if mode == MODE_GRAB:
+		var held_name = "_"
+		if held_item:
+			held_name = held_item.display_name()
+		status_label.text += "held: " + held_name + "\n"
+	elif mode == MODE_RULER:
+		status_label.text += "extent: " + str(_max_ruler_extension()) + "\n"
+	status_label.text += "mode: " + _mode_to_str() + "\n"
 	status_label.text += ""
 
 func _update_hover_text(result):
@@ -158,7 +185,6 @@ func _handle_panning(dt: float):
 
 		# for rotation.x == TAU the WS axis of movement gets flipped
 		# crude fix, but rather logical
-		const EPSILON = 0.000001
 		camera.rotation.x = clamp(camera.rotation.x, -TAU / 4 + EPSILON, TAU / 4 - EPSILON)
 		self.rotate_y(rad_to_deg(-mouse_delta.x) * ROTATION_SPEED)	
 
@@ -213,14 +239,19 @@ func _display_ruler():
 	var b = $Ruler/B.global_position
 	var distance = a.distance_to(b)
 	
-	var visible = distance > 0.25
+	var visible = distance > MIN_RULER_LENGTH
 	$Ruler/A.visible = visible
 	$Ruler/B.visible = visible
 	$Ruler/Rope.visible = visible
 	$Ruler/Label.visible = visible
+	
+	distance = clamp(distance, MIN_RULER_LENGTH, MAX_RULER_LENGTH)
+	
+	if not visible:
+		return
 
 	var m = (a + b) / 2
-	var label_position = camera.unproject_position(m)
+	var label_position = get_viewport().get_camera_3d().unproject_position(m)
 	var viewport_size = Vector2(get_viewport().size)
 	label_position.x = clamp(label_position.x, 0, viewport_size.x)
 	label_position.y = clamp(label_position.y, 0, viewport_size.y)
@@ -231,13 +262,10 @@ func _display_ruler():
 		return
 	$Ruler/Rope.look_at(a)
 	$Ruler/Rope/Mesh.scale.y = distance
-	var feet = floor(distance)
-	var decimals = distance - floor(distance)
-	var inch = round(decimals * 12)
-	
-	$Ruler/Label.text = str(feet) + "'" + str(inch) + '"'
+	$Ruler/Label.text = str(round(distance))
 
 func _process(dt: float) -> void:
+	_display_ruler()
 	if not is_multiplayer_authority():
 		return
 	_handle_mode_switching()
@@ -249,8 +277,8 @@ func _process(dt: float) -> void:
 	_handle_poke(result)
 	_update_hover_text(result)
 	_process_mode(dt, result)
-	_display_ruler()
 	sync_position.rpc(global_position)
+	sync_ruler.rpc($Ruler/A.global_position, $Ruler/B.global_position)
 
 func _ready() -> void:
 	if not is_multiplayer_authority():
@@ -260,3 +288,9 @@ func _ready() -> void:
 @rpc("unreliable")
 func sync_position(authority_position):
 	global_position = authority_position
+
+@rpc
+func sync_ruler(a_pos, b_pos):
+	$Ruler/A.global_position = a_pos
+	$Ruler/B.global_position = b_pos
+	_display_ruler()
