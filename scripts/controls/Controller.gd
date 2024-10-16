@@ -11,6 +11,7 @@ const INTERACTION_RAY_LENGTH = 1200.
 const MOVEMENT_SPEED = 10.
 const BOOST_COEFFICIENT = 2.1
 const ROTATION_SPEED = 0.0001
+const OBJECT_SPIN_SPEED_DEG_PER_S = 360
 
 var is_moving = false
 
@@ -31,7 +32,6 @@ var interact_with_frozen = false
 var mode = MODE_GRAB
 
 # MODE_GRAB
-const GRAB_HORIZONTAL_SPIN_DEG_PER_S = 1440
 var held_item: RigidBody3D = null
 var held_distance = 0
 
@@ -45,6 +45,8 @@ var is_ruler_updating = false
 
 # MODE_SPAWN
 @export var SPAWN_OVERLAY_SHADER: ShaderMaterial = null
+const SPAWN_ROTATION_SPEED_DEG_PER_S = 720
+var spawn_rotation_deg = 0
 
 func try_grab(result):
 	if result:
@@ -134,6 +136,9 @@ func _process_spawn(dt, raycast):
 	preview_mesh.mesh = active_miniature.mesh()
 	preview_mesh.position.y = active_miniature.vertical_support_height()
 	
+	spawn_rotation_deg += get_mouse_scroll() * dt * OBJECT_SPIN_SPEED_DEG_PER_S
+	preview.rotation_degrees.y = spawn_rotation_deg
+	
 	if active_miniature.material == null:
 		preview_mesh.material = SPAWN_OVERLAY_SHADER
 	else:
@@ -144,7 +149,7 @@ func _process_spawn(dt, raycast):
 	
 	if Input.is_action_just_pressed("Do"):
 		var at = raycast['position'] + Vector3.UP * active_miniature.vertical_support_height()
-		instantiate(at)
+		instantiate(preview_mesh.global_position, preview.rotation)
 
 func _process_mode(dt, raycast):
 	var lookup = {
@@ -273,8 +278,9 @@ func _handle_poke(result: Dictionary):
 				_handle_poke_freeze(target)
 			
 @rpc("call_local")
-func instantiate(at: Vector3):
+func instantiate(at: Vector3, rotation: Vector3):
 	var instance = load("res://data/miniatures/D6.tres").instantiate(self, at)
+	instance.rotation = rotation
 
 func _handle_mode_switching():
 	if Input.is_action_just_pressed("Next Mode"):
