@@ -10,6 +10,18 @@ var _cached_mesh: ArrayMesh
 var _cached_shape: ConvexPolygonShape3D = null
 var _cached_volume: float = INF
 var _cached_deduced_face_values: Dictionary
+var _cached_vertical_support: float = INF
+
+func vertical_support_height():
+	if _cached_vertical_support == INF:
+		var mesh_data = MeshDataTool.new()
+		mesh_data.create_from_surface(mesh(), 0)
+		var min_y = +INF
+		for v in range(mesh_data.get_vertex_count()):
+			var vert = mesh_data.get_vertex(v)
+			min_y = min(vert.y, min_y)
+		_cached_vertical_support = -min_y
+	return _cached_vertical_support
 
 func resolve_face_value(idx: int):
 	deduce_faces_values()

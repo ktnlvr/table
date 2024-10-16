@@ -19,8 +19,11 @@ var last_mouse_pos = Vector2.ZERO
 enum {
 	MODE_GRAB,
 	MODE_RULER,
+	MODE_SPAWN,
 	amount_of_modes
 }
+
+@export var active_miniature: Miniature
 
 var locked_height = false
 var interact_with_frozen = false
@@ -40,7 +43,8 @@ var is_ruler_valid = false
 var current_ruler_length = 10
 var is_ruler_updating = false
 
-@export var active_miniature: Miniature
+# MODE_SPAWN
+@export var SPAWN_OVERLAY_SHADER: ShaderMaterial = null
 
 func try_grab(result):
 	if result:
@@ -116,17 +120,44 @@ func _process_ruler(dt: float, raycast):
 		$Ruler/A.global_position = raycast['position']
 		is_ruler_updating = true
 
+func _process_spawn(dt, raycast):
+	if not raycast:
+		return
+	
+	var preview = $"Spawn Preview"
+	var preview_mesh = $"Spawn Preview/Preview Mesh"
+	
+	preview.global_position = raycast['position']
+	preview_mesh.mesh = active_miniature.mesh()
+	preview_mesh.position.y = active_miniature.vertical_support_height()
+	
+	if active_miniature.material == null:
+		preview_mesh.material = SPAWN_OVERLAY_SHADER
+	else:
+		preview_mesh.material = active_miniature.material.duplicate()
+		preview_mesh.material.albedo_color.a = 0.5
+		preview_mesh.material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		preview_mesh.material.next_pass = SPAWN_OVERLAY_SHADER
+	
+	if Input.is_action_just_pressed("Do"):
+		var at = raycast['position'] + Vector3.UP * active_miniature.vertical_support_height()
+		instantiate(at)
+
 func _process_mode(dt, raycast):
-	if mode == MODE_GRAB:
-		_process_grab(dt, raycast)
-	if mode == MODE_RULER:
-		_process_ruler(dt, raycast)
+	var lookup = {
+		MODE_GRAB: _process_grab,
+		MODE_RULER: _process_ruler,
+		MODE_SPAWN: _process_spawn,
+	}
+	lookup[mode].call(dt, raycast)
 
 func _mode_to_str() -> String:
 	if mode == MODE_GRAB:
 		return "Grab"
 	elif mode == MODE_RULER:
 		return "Ruler"
+	elif mode == MODE_SPAWN:
+		return "Spawn"
 	return "?????"
 
 func _update_status_text():
@@ -138,6 +169,9 @@ func _update_status_text():
 		status_label.text += "held: " + held_name + "\n"
 	elif mode == MODE_RULER:
 		status_label.text += "extent: " + str(_max_ruler_extension()) + "\n"
+	elif mode == MODE_SPAWN:
+		if active_miniature:
+			status_label.text += "spawning: " + str(active_miniature.display_name) + "\n"
 	status_label.text += "mode: " + _mode_to_str() + "\n"
 	status_label.text += ""
 
@@ -235,9 +269,6 @@ func _handle_poke(result: Dictionary):
 			if Input.is_action_just_pressed("Freeze"):
 				_handle_poke_freeze(target)
 			
-	if Input.is_key_pressed(KEY_T):
-		self.instantiate.rpc(result['position'] + result['normal'])
-
 @rpc("call_local")
 func instantiate(at: Vector3):
 	var instance = load("res://data/miniatures/D6.tres").instantiate(self, at)
@@ -245,6 +276,7 @@ func instantiate(at: Vector3):
 func _handle_mode_switching():
 	if Input.is_action_just_pressed("Next Mode"):
 		mode = (mode + 1) % amount_of_modes
+		$"Spawn Preview".visible = mode == MODE_SPAWN
 
 func _display_ruler():
 	var a = $Ruler/A.global_position

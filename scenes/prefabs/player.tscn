@@ -1,14 +1,32 @@
-[gd_scene load_steps=5 format=3 uid="uid://dlfkblp1gg5h4"]
+[gd_scene load_steps=7 format=3 uid="uid://dlfkblp1gg5h4"]
 
 [ext_resource type="Script" path="res://scripts/controls/Controller.gd" id="1_frclp"]
 [ext_resource type="Resource" uid="uid://b6ts5l3pgjq5h" path="res://data/miniatures/D6.tres" id="2_4d8w2"]
 [ext_resource type="Theme" uid="uid://e58brej7v4r5" path="res://ui/main.tres" id="3_dw5ud"]
 [ext_resource type="Material" uid="uid://do0u21ggc6r7i" path="res://materials/ruler.tres" id="4_ivexn"]
+[ext_resource type="Shader" path="res://shaders/hologram.gdshader" id="5_yrp11"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_luuyn"]
+render_priority = 0
+shader = ExtResource("5_yrp11")
+shader_parameter/line_color = Vector4(1, 1, 1, 1)
+shader_parameter/line_width = 0.084
+shader_parameter/line_blur = 0.359
+shader_parameter/line_speed = 0.72
+shader_parameter/straight_lines = true
+shader_parameter/interrupt_width = 0.5
+shader_parameter/interrupt_blur = 0.25
+shader_parameter/interrupt_speed = 0.0850001
+shader_parameter/glow_color = Vector4(0.5, 0.75, 1, 1)
+shader_parameter/glow_itensity = 7.414
+shader_parameter/glow_amount = 8.341
+shader_parameter/flickering = 0.835
 
 [node name="Player" type="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)
 script = ExtResource("1_frclp")
 active_miniature = ExtResource("2_4d8w2")
+SPAWN_OVERLAY_SHADER = SubResource("ShaderMaterial_luuyn")
 
 [node name="Camera" type="Camera3D" parent="."]
 
@@ -71,3 +89,10 @@ offset_bottom = 57.0
 theme = ExtResource("3_dw5ud")
 theme_override_font_sizes/font_size = 48
 text = "Hii"
+
+[node name="Spawn Preview" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)
+top_level = true
+
+[node name="Preview Mesh" type="CSGMesh3D" parent="Spawn Preview"]
+cast_shadow = 0
