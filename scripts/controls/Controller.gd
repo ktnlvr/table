@@ -143,8 +143,6 @@ func _process_spawn(dt, raycast):
 		preview_mesh.material = SPAWN_OVERLAY_SHADER
 	else:
 		preview_mesh.material = active_miniature.material.duplicate()
-		preview_mesh.material.albedo_color.a = 0.5
-		preview_mesh.material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		preview_mesh.material.next_pass = SPAWN_OVERLAY_SHADER
 	
 	if Input.is_action_just_pressed("Do"):

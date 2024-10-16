@@ -2,7 +2,7 @@
 
 [ext_resource type="ArrayMesh" uid="uid://bu0qjtc78527m" path="res://data/meshes/Dice.obj" id="1_55yvj"]
 [ext_resource type="Script" path="res://scripts/data/Miniature.gd" id="1_q6cks"]
-[ext_resource type="Material" uid="uid://b78eh5bme8ymi" path="res://data/materials/d6.tres" id="2_22m10"]
+[ext_resource type="Material" uid="uid://dqsxk5xdvsakd" path="res://data/materials/d6.tres" id="2_22m10"]
 
 [resource]
 script = ExtResource("1_q6cks")
