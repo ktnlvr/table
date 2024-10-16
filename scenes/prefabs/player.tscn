@@ -36,3 +36,34 @@ text = "Lortem Ipsum"
 
 [node name="Network Body" type="CSGSphere3D" parent="."]
 cast_shadow = 0
+
+[node name="Ruler" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)
+top_level = true
+
+[node name="A" type="Marker3D" parent="Ruler"]
+
+[node name="Mesh" type="CSGSphere3D" parent="Ruler/A"]
+cast_shadow = 0
+radius = 0.2
+
+[node name="B" type="Marker3D" parent="Ruler"]
+
+[node name="Mesh" type="CSGSphere3D" parent="Ruler/B"]
+cast_shadow = 0
+radius = 0.2
+
+[node name="Rope" type="Node3D" parent="Ruler"]
+
+[node name="Mesh" type="CSGCylinder3D" parent="Ruler/Rope"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+cast_shadow = 0
+radius = 0.075
+height = 1.0
+
+[node name="Label" type="Label" parent="Ruler"]
+offset_right = 40.0
+offset_bottom = 23.0
+theme = ExtResource("3_dw5ud")
+theme_override_font_sizes/font_size = 48
+text = "Hii"

@@ -13,15 +13,20 @@ const ROTATION_SPEED = 0.0001
 var last_mouse_pos = Vector2.ZERO
 
 enum {
-	HORIZONTAL_GRAB,
+	MODE_GRAB,
+	MODE_RULER,
+	amount_of_modes
 }
 
 var locked_height = false
 var interact_with_frozen = false
 
-var mode = HORIZONTAL_GRAB
+var mode = MODE_GRAB
 var held_item: RigidBody3D = null
 var held_distance = 0
+
+var rulering = false
+var valid_ruler = false
 
 @export var active_miniature: Miniature
 
@@ -44,7 +49,7 @@ func release_held():
 	held_item.release_puppeteer.rpc()
 	held_item = null
 
-func _process_horizontal_grab(dt, raycast):
+func _process_grab(dt, raycast):
 	if held_item:
 		if not raycast:
 			return
@@ -63,13 +68,59 @@ func _process_horizontal_grab(dt, raycast):
 		if Input.is_action_just_pressed("Do"):
 			try_grab(raycast)
 
-func _process_mode(dt, hovered):
-	if mode == HORIZONTAL_GRAB:
-		_process_horizontal_grab(dt, hovered)
+func _process_ruler(dt: float, raycast):
+	var held = Input.is_action_pressed("Do")
+	if raycast and held:
+		$Ruler/B.global_position = raycast['position']
+	
+	var a = $Ruler/A.global_position
+	var b = $Ruler/B.global_position
+	var distance = a.distance_to(b)
+
+	if valid_ruler or held:
+		var m = (a + b) / 2
+		var label_size = $Ruler/Label.size
+		var label_position = camera.unproject_position(m) - label_size / 2
+		var viewport_size = Vector2(get_viewport().size) - label_size
+		label_position.x = clamp(label_position.x, 0, viewport_size.x)
+		label_position.y = clamp(label_position.y, 0, viewport_size.y)
+		$Ruler/Label.global_position = label_position
+		
+		$Ruler/Rope.global_position = m
+		if a == b:
+			return
+		$Ruler/Rope.look_at(a)
+		$Ruler/Rope/Mesh.scale.y = distance
+		var feet = floor(distance)
+		var decimals = distance - floor(distance)
+		var inch = round(decimals * 12)
+		
+		$Ruler/Label.text = str(feet) + "'" + str(inch) + '"'
+	
+	if Input.is_action_just_released("Do"):
+		if not raycast:
+			valid_ruler = false
+		else:
+			$Ruler/B.global_position = raycast['position']
+			valid_ruler = true
+
+	if not raycast:
+		return
+	
+	if Input.is_action_just_pressed("Do"):
+		$Ruler/A.global_position = raycast['position']
+
+func _process_mode(dt, raycast):
+	if mode == MODE_GRAB:
+		_process_grab(dt, raycast)
+	if mode == MODE_RULER:
+		_process_ruler(dt, raycast)
 
 func _mode_to_str() -> String:
-	if mode == HORIZONTAL_GRAB:
-		return "Horizontal Grab"
+	if mode == MODE_GRAB:
+		return "Grab"
+	elif mode == MODE_RULER:
+		return "Ruler"
 	return "?????"
 
 func _update_status_text():
@@ -177,9 +228,14 @@ func _handle_poke(result: Dictionary):
 func instantiate(at: Vector3):
 	var instance = load("res://data/miniatures/D6.tres").instantiate(self, at)
 
+func _handle_mode_switching():
+	if Input.is_action_just_pressed("Next Mode"):
+		mode = (mode + 1) % amount_of_modes
+
 func _process(dt: float) -> void:
 	if not is_multiplayer_authority():
 		return
+	_handle_mode_switching()
 	_update_status_text()
 	_handle_toggles()
 	_handle_movement(dt)
