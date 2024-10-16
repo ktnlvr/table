@@ -72,31 +72,7 @@ func _process_ruler(dt: float, raycast):
 	var held = Input.is_action_pressed("Do")
 	if raycast and held:
 		$Ruler/B.global_position = raycast['position']
-	
-	var a = $Ruler/A.global_position
-	var b = $Ruler/B.global_position
-	var distance = a.distance_to(b)
 
-	if valid_ruler or held:
-		var m = (a + b) / 2
-		var label_size = $Ruler/Label.size
-		var label_position = camera.unproject_position(m) - label_size / 2
-		var viewport_size = Vector2(get_viewport().size) - label_size
-		label_position.x = clamp(label_position.x, 0, viewport_size.x)
-		label_position.y = clamp(label_position.y, 0, viewport_size.y)
-		$Ruler/Label.global_position = label_position
-		
-		$Ruler/Rope.global_position = m
-		if a == b:
-			return
-		$Ruler/Rope.look_at(a)
-		$Ruler/Rope/Mesh.scale.y = distance
-		var feet = floor(distance)
-		var decimals = distance - floor(distance)
-		var inch = round(decimals * 12)
-		
-		$Ruler/Label.text = str(feet) + "'" + str(inch) + '"'
-	
 	if Input.is_action_just_released("Do"):
 		if not raycast:
 			valid_ruler = false
@@ -232,6 +208,35 @@ func _handle_mode_switching():
 	if Input.is_action_just_pressed("Next Mode"):
 		mode = (mode + 1) % amount_of_modes
 
+func _display_ruler():
+	var a = $Ruler/A.global_position
+	var b = $Ruler/B.global_position
+	var distance = a.distance_to(b)
+	
+	var visible = distance > 0.25
+	$Ruler/A.visible = visible
+	$Ruler/B.visible = visible
+	$Ruler/Rope.visible = visible
+	$Ruler/Label.visible = visible
+
+	var m = (a + b) / 2
+	var label_position = camera.unproject_position(m)
+	var viewport_size = Vector2(get_viewport().size)
+	label_position.x = clamp(label_position.x, 0, viewport_size.x)
+	label_position.y = clamp(label_position.y, 0, viewport_size.y)
+	$Ruler/Label.global_position = label_position
+	
+	$Ruler/Rope.global_position = m
+	if a == b:
+		return
+	$Ruler/Rope.look_at(a)
+	$Ruler/Rope/Mesh.scale.y = distance
+	var feet = floor(distance)
+	var decimals = distance - floor(distance)
+	var inch = round(decimals * 12)
+	
+	$Ruler/Label.text = str(feet) + "'" + str(inch) + '"'
+
 func _process(dt: float) -> void:
 	if not is_multiplayer_authority():
 		return
@@ -244,6 +249,7 @@ func _process(dt: float) -> void:
 	_handle_poke(result)
 	_update_hover_text(result)
 	_process_mode(dt, result)
+	_display_ruler()
 	sync_position.rpc(global_position)
 
 func _ready() -> void:
