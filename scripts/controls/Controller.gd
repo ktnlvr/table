@@ -12,6 +12,8 @@ const MOVEMENT_SPEED = 10.
 const BOOST_COEFFICIENT = 2.1
 const ROTATION_SPEED = 0.0001
 
+var is_moving = false
+
 var last_mouse_pos = Vector2.ZERO
 
 enum {
@@ -36,6 +38,7 @@ const MAX_RULER_LENGTH = 60
 const RULER_EXTEND_SPEED = 20
 var is_ruler_valid = false
 var current_ruler_length = 10
+var is_ruler_updating = false
 
 @export var active_miniature: Miniature
 
@@ -62,6 +65,10 @@ func get_mouse_scroll() -> int:
 	var scroll = -1 if Input.is_action_just_pressed("Gentle Down") else 0
 	scroll += 1 if Input.is_action_just_pressed("Gentle Up") else 0
 	return scroll
+
+func _reset_flags():
+	is_moving = false
+	is_ruler_updating = false
 
 func _process_grab(dt, raycast):
 	if held_item:
@@ -96,15 +103,18 @@ func _process_ruler(dt: float, raycast):
 		# TODO: do proper checks
 		var len = clamp(d.length(), 0, _max_ruler_extension())
 		$Ruler/B.global_position = $Ruler/A.global_position + d.normalized() * len
+		is_ruler_updating = true
 
 	if Input.is_action_just_released("Do"):
 		is_ruler_valid = !!raycast
+		is_ruler_updating = true
 
 	if not raycast:
 		return
 
 	if Input.is_action_just_pressed("Do"):
 		$Ruler/A.global_position = raycast['position']
+		is_ruler_updating = true
 
 func _process_mode(dt, raycast):
 	if mode == MODE_GRAB:
@@ -165,6 +175,8 @@ func _handle_movement(dt: float):
 		direction = (lr + ud + fb).normalized()
 
 	var displacement = direction * speed * dt
+	if displacement.length() > EPSILON:
+		is_moving = true
 	translate(displacement)
 
 func _handle_toggles():
@@ -264,7 +276,14 @@ func _display_ruler():
 	$Ruler/Rope/Mesh.scale.y = distance
 	$Ruler/Label.text = str(round(distance))
 
+func _sync_network():
+	if is_moving:
+		sync_position.rpc(global_position)
+	if is_ruler_updating and is_ruler_valid:
+		sync_ruler.rpc($Ruler/A.global_position, $Ruler/B.global_position)
+
 func _process(dt: float) -> void:
+	_reset_flags()
 	_display_ruler()
 	if not is_multiplayer_authority():
 		return
@@ -277,8 +296,8 @@ func _process(dt: float) -> void:
 	_handle_poke(result)
 	_update_hover_text(result)
 	_process_mode(dt, result)
-	sync_position.rpc(global_position)
-	sync_ruler.rpc($Ruler/A.global_position, $Ruler/B.global_position)
+	
+	_sync_network()
 
 func _ready() -> void:
 	if not is_multiplayer_authority():
