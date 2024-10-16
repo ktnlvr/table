@@ -149,7 +149,7 @@ func _process_spawn(dt, raycast):
 	
 	if Input.is_action_just_pressed("Do"):
 		var at = raycast['position'] + Vector3.UP * active_miniature.vertical_support_height()
-		instantiate(preview_mesh.global_position, preview.rotation)
+		instantiate.rpc(preview_mesh.global_position, preview.rotation)
 
 func _process_mode(dt, raycast):
 	var lookup = {
