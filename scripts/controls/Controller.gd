@@ -38,7 +38,7 @@ var held_distance = 0
 # MODE_RULER
 const MIN_RULER_LENGTH = 0.1
 const MAX_RULER_LENGTH = 60
-const RULER_EXTEND_SPEED = 20
+const RULER_EXTEND_SPEED = 10
 var is_ruler_valid = false
 var current_ruler_length = 10
 var is_ruler_updating = false
@@ -66,8 +66,11 @@ func release_held():
 	held_item = null
 
 func get_mouse_scroll() -> int:
-	var scroll = -1 if Input.is_action_just_pressed("Gentle Down") else 0
-	scroll += 1 if Input.is_action_just_pressed("Gentle Up") else 0
+	var _pressed = func(name):
+		return Input.is_action_just_pressed(name) or Input.is_action_pressed(name)
+	
+	var scroll = -1 if _pressed.call("Gentle Down") else 0
+	scroll += 1 if _pressed.call("Gentle Up") else 0
 	return scroll
 
 func _reset_flags():
@@ -94,7 +97,7 @@ func _process_grab(dt, raycast):
 			try_grab(raycast)
 
 func _max_ruler_extension():
-	return max(0, floor(current_ruler_length))
+	return max(MIN_RULER_LENGTH + EPSILON, floor(current_ruler_length))
 
 func _process_ruler(dt: float, raycast):
 	var length_extension = RULER_EXTEND_SPEED * dt * get_mouse_scroll()
@@ -168,7 +171,7 @@ func _update_status_text():
 			held_name = held_item.display_name()
 		status_label.text += "held: " + held_name + "\n"
 	elif mode == MODE_RULER:
-		status_label.text += "extent: " + str(_max_ruler_extension()) + "\n"
+		status_label.text += "extent: " + str(floor(_max_ruler_extension())) + "\n"
 	elif mode == MODE_SPAWN:
 		if active_miniature:
 			status_label.text += "spawning: " + str(active_miniature.display_name) + "\n"
