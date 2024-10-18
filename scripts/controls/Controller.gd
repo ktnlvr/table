@@ -192,6 +192,16 @@ func _update_hover_text(result):
 	hover_label.text = result['collider'].display_name()
 	hover_label.position = mouse_pos + Vector2(15, -15)
 
+func _handle_object_copy(result):
+	var correct_mode = mode in [MODE_GRAB, MODE_SPAWN]
+	var input = Input.is_action_just_pressed("Copy")
+	var valid_target = result and result['collider'] is InteractibleMiniature
+	
+	if correct_mode and input and valid_target:
+		var miniature = result['collider']._miniature
+		active_miniature = miniature
+		_switch_to_mode(MODE_SPAWN)
+
 func _handle_movement(dt: float):
 	var back_forth = Input.get_axis("Back", "Forward")
 	var up_down = Input.get_axis("Down", "Up")
@@ -277,13 +287,20 @@ func _handle_poke(result: Dictionary):
 			
 @rpc("call_local")
 func instantiate(at: Vector3, rotation: Vector3):
-	var instance = load("res://data/miniatures/D6.tres").instantiate(self, at)
+	var instance = active_miniature.instantiate(self, at)
 	instance.rotation = rotation
 
+func _switch_to_mode(new_mode):
+	$"Spawn Preview/Preview Mesh".mesh = null
+	mode = new_mode
+
 func _handle_mode_switching():
-	if Input.is_action_just_pressed("Next Mode"):
-		mode = (mode + 1) % amount_of_modes
-		$"Spawn Preview".visible = mode == MODE_SPAWN
+	if Input.is_action_just_pressed("Fallback Mode"):
+		_switch_to_mode(MODE_GRAB)
+	elif Input.is_action_just_pressed("Ruler Mode"):
+		_switch_to_mode(MODE_RULER)
+	elif Input.is_action_just_pressed("Spawn Mode"):
+		_switch_to_mode(MODE_SPAWN)
 
 func _display_ruler():
 	var a = $Ruler/A.global_position
@@ -334,6 +351,7 @@ func _process(dt: float) -> void:
 	var result = _hover_raycast()
 	_handle_poke(result)
 	_update_hover_text(result)
+	_handle_object_copy(result)
 	_process_mode(dt, result)
 	
 	_sync_network()
