@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://dlfkblp1gg5h4"]
+[gd_scene load_steps=8 format=3 uid="uid://dlfkblp1gg5h4"]
 
 [ext_resource type="Script" path="res://scripts/controls/Controller.gd" id="1_frclp"]
 [ext_resource type="Resource" uid="uid://b6ts5l3pgjq5h" path="res://data/miniatures/D6.tres" id="2_4d8w2"]
 [ext_resource type="Theme" uid="uid://e58brej7v4r5" path="res://ui/main.tres" id="3_dw5ud"]
 [ext_resource type="Material" uid="uid://do0u21ggc6r7i" path="res://materials/ruler.tres" id="4_ivexn"]
+[ext_resource type="PackedScene" uid="uid://cr3u3vm5y3xtw" path="res://scenes/ui/library.tscn" id="5_4oy2b"]
 [ext_resource type="Shader" path="res://shaders/hologram.gdshader" id="5_yrp11"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_luuyn"]
@@ -52,6 +53,9 @@ offset_bottom = 38.0
 theme = ExtResource("3_dw5ud")
 theme_override_font_sizes/font_size = 32
 text = "Lortem Ipsum"
+
+[node name="Asset Library" parent="Camera/Canvas" instance=ExtResource("5_4oy2b")]
+visible = false
 
 [node name="Network Body" type="CSGSphere3D" parent="."]
 cast_shadow = 0

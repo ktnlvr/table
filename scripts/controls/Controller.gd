@@ -3,6 +3,7 @@ extends Node3D
 @onready var status_label = $"Camera/Canvas/Status Label"
 @onready var hover_label = $"Camera/Canvas/Hover Label"
 @onready var camera = $"Camera"
+@onready var asset_library = $"Camera/Canvas/Asset Library"
 
 const EPSILON = 0.000001
 
@@ -74,6 +75,9 @@ func get_mouse_scroll() -> int:
 	var scroll = -1 if _pressed.call("Gentle Down") else 0
 	scroll += 1 if _pressed.call("Gentle Up") else 0
 	return scroll
+
+func _is_asset_library_open() -> bool:
+	return asset_library.visible
 
 func _reset_flags():
 	is_moving = false
@@ -332,6 +336,10 @@ func _display_ruler():
 	$Ruler/Rope/Mesh.scale.y = distance
 	$Ruler/Label.text = str(round(distance))
 
+func _toggle_asset_library():
+	if Input.is_action_just_pressed("Assets"):
+		asset_library.visible = not asset_library.visible
+
 func _sync_network():
 	if is_moving:
 		sync_position.rpc(global_position)
@@ -341,7 +349,10 @@ func _sync_network():
 func _process(dt: float) -> void:
 	_reset_flags()
 	_display_ruler()
+	_toggle_asset_library()
 	if not is_multiplayer_authority():
+		return
+	if _is_asset_library_open():
 		return
 	_handle_mode_switching()
 	_update_status_text()
@@ -360,6 +371,13 @@ func _ready() -> void:
 	if not is_multiplayer_authority():
 		camera.queue_free()
 	name = str(get_multiplayer_authority())
+	
+	asset_library.asset_miniature_clicked.connect(
+		func(miniature):
+			_switch_to_mode(MODE_SPAWN)
+			asset_library.visible = false
+			active_miniature = miniature
+	)
 
 @rpc("unreliable")
 func sync_position(authority_position):

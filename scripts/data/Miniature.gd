@@ -11,6 +11,7 @@ var _cached_shape: ConvexPolygonShape3D = null
 var _cached_volume: float = INF
 var _cached_deduced_face_values: Dictionary
 var _cached_vertical_support: float = INF
+var _cached_center: Vector3 = Vector3.INF
 
 func vertical_support_height():
 	if _cached_vertical_support == INF:
@@ -64,6 +65,28 @@ func volume() -> float:
 
 func mass() -> float:
 	return volume() * density
+
+func center() -> Vector3:
+	# https://stackoverflow.com/questions/48918530/how-to-compute-the-centroid-of-a-mesh-with-triangular-faces
+	# doesn't seem correct because of 
+	# https://stackoverflow.com/questions/66891594/calculate-the-centroid-of-a-3d-mesh-of-triangles
+	# but fine overall, i'm not doing rocket science after all
+	if _cached_center == Vector3.INF:
+		var mesh_data = MeshDataTool.new()
+		mesh_data.create_from_surface(mesh(), 0)
+		var total_area = 0
+		var centroid = Vector3.ZERO
+		for i in range(mesh_data.get_face_count()):
+			var p0 = mesh_data.get_vertex(mesh_data.get_face_vertex(i, 0))
+			var p1 = mesh_data.get_vertex(mesh_data.get_face_vertex(i, 1))
+			var p2 = mesh_data.get_vertex(mesh_data.get_face_vertex(i, 2))
+			var area = 0.5 * (p1 - p0).cross(p2 - p0).length()
+			var center = (p0 + p1 + p2) / 3
+			centroid += area * center
+			total_area += area
+		centroid /= total_area
+		_cached_center = centroid
+	return _cached_center
 
 func deduce_faces_values():
 	if not _cached_deduced_face_values.is_empty():

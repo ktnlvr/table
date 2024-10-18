@@ -1,0 +1,59 @@
+[gd_scene load_steps=7 format=3 uid="uid://d3lntfdxef7hj"]
+
+[ext_resource type="Theme" uid="uid://e58brej7v4r5" path="res://ui/main.tres" id="1_ggc6g"]
+[ext_resource type="Script" path="res://scripts/ui/AssetMiniatureCard.gd" id="1_qvsoe"]
+[ext_resource type="ArrayMesh" uid="uid://cet3vdcvmynbp" path="res://data/meshes/Teapot.obj" id="2_u072b"]
+[ext_resource type="Script" path="res://scripts/ui/Spin.gd" id="3_5jbfm"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uvx8j"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_6swnw"]
+viewport_path = NodePath("Container/Texture/Viewport")
+
+[node name="Asset Panel" type="PanelContainer"]
+theme_override_styles/panel = SubResource("StyleBoxEmpty_uvx8j")
+script = ExtResource("1_qvsoe")
+
+[node name="Container" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme = ExtResource("1_ggc6g")
+
+[node name="Texture" type="TextureButton" parent="Container"]
+layout_mode = 2
+texture_normal = SubResource("ViewportTexture_6swnw")
+
+[node name="Viewport" type="SubViewport" parent="Container/Texture"]
+own_world_3d = true
+size = Vector2i(128, 128)
+
+[node name="Camera" type="Camera3D" parent="Container/Texture/Viewport"]
+transform = Transform3D(1, 0, 0, 0, 0.991275, 0.131807, 0, -0.131807, 0.991275, 0, 0.5, 1.359)
+fov = 45.0
+size = 1.02941
+
+[node name="Light" type="SpotLight3D" parent="Container/Texture/Viewport/Camera"]
+
+[node name="Mesh" type="MeshInstance3D" parent="Container/Texture/Viewport"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+cast_shadow = 0
+mesh = ExtResource("2_u072b")
+script = ExtResource("3_5jbfm")
+bounce_speed = 3.0
+bounce_amplitude = 0.01
+
+[node name="Light" type="DirectionalLight3D" parent="Container/Texture/Viewport"]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+script = ExtResource("3_5jbfm")
+degrees_per_second = 12.0
+
+[node name="Name" type="Label" parent="Container"]
+layout_mode = 2
+theme = ExtResource("1_ggc6g")
+theme_override_font_sizes/font_size = 24
+text = "Utah Teapot"
+horizontal_alignment = 1

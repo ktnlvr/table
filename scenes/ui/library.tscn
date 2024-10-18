@@ -1,0 +1,36 @@
+[gd_scene load_steps=3 format=3 uid="uid://cr3u3vm5y3xtw"]
+
+[ext_resource type="Script" path="res://scripts/ui/AssetLibrary.gd" id="1_28vib"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3kgmr"]
+content_margin_left = 15.0
+content_margin_top = 15.0
+content_margin_right = 15.0
+content_margin_bottom = 15.0
+bg_color = Color(0.39, 0.39, 0.39, 0.160784)
+
+[node name="Library" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_28vib")
+
+[node name="Main" type="Panel" parent="."]
+layout_mode = 2
+offset_left = 45.0
+offset_top = 45.0
+offset_right = 1235.0
+offset_bottom = 675.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_3kgmr")
+
+[node name="Flow" type="FlowContainer" parent="Main"]
+layout_mode = 2
+offset_left = 15.0
+offset_top = 15.0
+offset_right = 1175.0
+offset_bottom = 615.0
+alignment = 1
+last_wrap_alignment = 1
