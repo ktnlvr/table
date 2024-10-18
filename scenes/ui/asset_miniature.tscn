@@ -24,6 +24,7 @@ theme = ExtResource("1_ggc6g")
 
 [node name="Texture" type="TextureButton" parent="Container"]
 layout_mode = 2
+action_mode = 0
 texture_normal = SubResource("ViewportTexture_6swnw")
 
 [node name="Viewport" type="SubViewport" parent="Container/Texture"]

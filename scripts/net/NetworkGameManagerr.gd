@@ -46,3 +46,9 @@ func add_newly_connected_player(peer_id):
 func add_previous_players(connected_peers):
 	for peer in connected_peers:
 		add_player(peer)
+
+func _get_window_title() -> String:
+	return "Table | " + str(Engine.get_frames_per_second()) + " FPS | NetId " + str(multiplayer.get_unique_id())
+
+func _process(dt):
+	DisplayServer.window_set_title(_get_window_title())

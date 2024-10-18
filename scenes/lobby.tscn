@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cpmsm4oe8oswl"]
 
-[ext_resource type="Script" path="res://scripts/net/lobby.gd" id="1_nvypp"]
+[ext_resource type="Script" path="res://scripts/net/NetworkGameManagerr.gd" id="1_nvypp"]
 
 [node name="Lobby" type="Node3D"]
 script = ExtResource("1_nvypp")
