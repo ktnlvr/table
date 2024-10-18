@@ -7,5 +7,7 @@
 [resource]
 script = ExtResource("1_ifjrw")
 display_name = "Box"
+id = &"box"
 _mesh = SubResource("BoxMesh_nkxo5")
 density = 1.0
+face_values = {}

@@ -30,5 +30,5 @@ func _add_miniature(miniature: Miniature):
 	)
 
 func _ready() -> void:
-	for miniature in AssetDb.miniatures:
+	for miniature in AssetDb.miniatures.values():
 		_add_miniature(miniature)

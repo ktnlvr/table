@@ -137,12 +137,12 @@ func _process_spawn(dt, raycast):
 	var preview_mesh = $"Spawn Preview/Preview Mesh"
 	
 	preview.global_position = raycast['position']
+	spawn_rotation_deg += get_mouse_scroll() * dt * OBJECT_SPIN_SPEED_DEG_PER_S
+	preview.rotation_degrees.y = spawn_rotation_deg
+
 	if preview_mesh.mesh != active_miniature.mesh():
 		preview_mesh.mesh = active_miniature.mesh()
 		preview_mesh.position.y = active_miniature.vertical_support_height()
-		
-		spawn_rotation_deg += get_mouse_scroll() * dt * OBJECT_SPIN_SPEED_DEG_PER_S
-		preview.rotation_degrees.y = spawn_rotation_deg
 		
 		if active_miniature.material == null:
 			preview_mesh.material = SPAWN_OVERLAY_SHADER
@@ -152,7 +152,11 @@ func _process_spawn(dt, raycast):
 	
 	if Input.is_action_just_pressed("Do"):
 		var at = raycast['position'] + Vector3.UP * active_miniature.vertical_support_height()
-		instantiate.rpc(preview_mesh.global_position, preview.rotation)
+		AssetDb.instantiate.rpc(
+			active_miniature.id,
+			preview_mesh.global_position,
+			preview.rotation
+		)
 
 func _process_mode(dt, raycast):
 	var lookup = {
@@ -289,11 +293,6 @@ func _handle_poke(result: Dictionary):
 				_handle_poke_reroll(target)
 			if Input.is_action_just_pressed("Freeze"):
 				_handle_poke_freeze(target)
-			
-@rpc("call_local")
-func instantiate(at: Vector3, rotation: Vector3):
-	var instance = active_miniature.instantiate(self, at)
-	instance.rotation = rotation
 
 func _switch_to_mode(new_mode):
 	$"Spawn Preview/Preview Mesh".mesh = null
@@ -350,9 +349,9 @@ func _sync_network():
 func _process(dt: float) -> void:
 	_reset_flags()
 	_display_ruler()
-	_toggle_asset_library()
 	if not is_multiplayer_authority():
 		return
+	_toggle_asset_library()
 	if _is_asset_library_open():
 		return
 	_handle_mode_switching()

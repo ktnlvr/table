@@ -1,6 +1,7 @@
 class_name Miniature extends Resource
 
 @export var display_name: String
+@export var id: StringName
 @export var _mesh: Mesh
 @export var material: Material
 @export var density: float = 1

@@ -11,6 +11,7 @@ grow_amount = -0.369
 [resource]
 script = ExtResource("2_acbrf")
 display_name = "Utah Teapot"
+id = &"teapot"
 _mesh = ExtResource("1_q11ae")
 material = SubResource("StandardMaterial3D_oytmu")
 density = 1.0
