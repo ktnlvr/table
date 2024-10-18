@@ -137,17 +137,18 @@ func _process_spawn(dt, raycast):
 	var preview_mesh = $"Spawn Preview/Preview Mesh"
 	
 	preview.global_position = raycast['position']
-	preview_mesh.mesh = active_miniature.mesh()
-	preview_mesh.position.y = active_miniature.vertical_support_height()
-	
-	spawn_rotation_deg += get_mouse_scroll() * dt * OBJECT_SPIN_SPEED_DEG_PER_S
-	preview.rotation_degrees.y = spawn_rotation_deg
-	
-	if active_miniature.material == null:
-		preview_mesh.material = SPAWN_OVERLAY_SHADER
-	else:
-		preview_mesh.material = active_miniature.material.duplicate()
-		preview_mesh.material.next_pass = SPAWN_OVERLAY_SHADER
+	if preview_mesh.mesh != active_miniature.mesh():
+		preview_mesh.mesh = active_miniature.mesh()
+		preview_mesh.position.y = active_miniature.vertical_support_height()
+		
+		spawn_rotation_deg += get_mouse_scroll() * dt * OBJECT_SPIN_SPEED_DEG_PER_S
+		preview.rotation_degrees.y = spawn_rotation_deg
+		
+		if active_miniature.material == null:
+			preview_mesh.material = SPAWN_OVERLAY_SHADER
+		else:
+			preview_mesh.material = active_miniature.material.duplicate()
+			preview_mesh.material.next_pass = SPAWN_OVERLAY_SHADER
 	
 	if Input.is_action_just_pressed("Do"):
 		var at = raycast['position'] + Vector3.UP * active_miniature.vertical_support_height()
