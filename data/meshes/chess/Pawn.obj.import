@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://dva5u73y6q46t"
+path="res://.godot/imported/Pawn.obj-f9f37e1cf1470fc607266879b1139d89.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Pawn.obj-f9f37e1cf1470fc607266879b1139d89.mesh"]
+
+source_file="res://data/meshes/chess/Pawn.obj"
+dest_files=["res://.godot/imported/Pawn.obj-f9f37e1cf1470fc607266879b1139d89.mesh", "res://.godot/imported/Pawn.obj-f9f37e1cf1470fc607266879b1139d89.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

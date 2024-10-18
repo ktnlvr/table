@@ -1,11 +1,14 @@
 class_name Miniature extends Resource
 
+const CENTER_OF_MASS_OFFSET_PERCENTAGE = 1
+
 @export var display_name: String
 @export var id: StringName
 @export var _mesh: Mesh
 @export var material: Material
 @export var density: float = 1
 @export var face_values: Dictionary
+@export var grounded_center_of_mass: bool
 
 var _cached_mesh: ArrayMesh
 var _cached_shape: ConvexPolygonShape3D = null
@@ -118,7 +121,9 @@ func instantiate(instantiator: Node3D, at: Vector3) -> Node3D:
 	
 	rb._miniature = self
 	rb.set_multiplayer_authority(1)
-	
+	if grounded_center_of_mass:
+		rb.center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
+		rb.center_of_mass = center() + Vector3.DOWN * vertical_support_height() * CENTER_OF_MASS_OFFSET_PERCENTAGE
 	rb.global_position = at
 	rb.mass = mass()
 

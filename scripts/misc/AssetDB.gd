@@ -5,7 +5,9 @@ var miniatures: Dictionary = {}
 @onready var builtins = [
 	preload("res://data/miniatures/Box.tres"),
 	preload("res://data/miniatures/D6.tres"),
-	preload("res://data/miniatures/Teapot.tres")
+	preload("res://data/miniatures/Teapot.tres"),
+	preload("res://data/miniatures/chess/Pawn.tres"),
+	preload("res://data/miniatures/chess/Rook.tres"),
 ]
 
 func _load_builtins():

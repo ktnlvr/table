@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Miniature" load_steps=3 format=3 uid="uid://16jx33hliosx"]
+
+[ext_resource type="ArrayMesh" uid="uid://dva5u73y6q46t" path="res://data/meshes/chess/Pawn.obj" id="1_v1vma"]
+[ext_resource type="Script" path="res://scripts/data/Miniature.gd" id="2_rba4x"]
+
+[resource]
+script = ExtResource("2_rba4x")
+display_name = "Pawn"
+id = &"pawn"
+_mesh = ExtResource("1_v1vma")
+density = 1.0
+face_values = {}
+grounded_center_of_mass = true
