@@ -364,6 +364,11 @@ func _handle_poke(result: Dictionary):
 				_handle_poke_reroll(target)
 			if Input.is_action_just_pressed("Freeze"):
 				_handle_poke_freeze(target)
+	if held_items:
+		if Input.is_action_just_pressed("Reroll"):
+			for item in held_items:
+				_handle_poke_reroll(item)
+			release_held()
 
 func _switch_to_mode(new_mode):
 	selection.visible = false
