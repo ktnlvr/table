@@ -85,6 +85,10 @@ func _reset_flags():
 
 func _process_grab(dt, raycast):
 	if held_item:
+		if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+			release_held()
+			return
+		
 		if not raycast:
 			return
 		
@@ -150,6 +154,8 @@ func _process_spawn(dt, raycast):
 			preview_mesh.material = active_miniature.material.duplicate()
 			preview_mesh.material.next_pass = SPAWN_OVERLAY_SHADER
 	
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+		_switch_to_mode(MODE_GRAB)
 	if Input.is_action_just_pressed("Do"):
 		var at = raycast['position'] + Vector3.UP * active_miniature.vertical_support_height()
 		AssetDb.instantiate.rpc(
