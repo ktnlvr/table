@@ -35,8 +35,9 @@ var interact_with_frozen = false
 var mode = MODE_GRAB
 
 # MODE_GRAB
-var held_item: RigidBody3D = null
-var held_distance = 0
+var held_items = []
+var held_origins = []
+var held_distance := 0.
 
 # MODE_RULER
 const MIN_RULER_LENGTH = 0.1
@@ -65,13 +66,16 @@ func try_grab(result):
 				target.freeze = false
 			if target.freeze:
 				return
-			held_item = result['collider']
+			var held_item = result['collider']
 			held_item.angular_velocity = Vector3.ZERO
 			held_item.linear_velocity = Vector3.ZERO
+			held_items = [held_item]
+			held_origins = [Vector3.ZERO]
 
 func release_held():
-	held_item.release_puppeteer.rpc()
-	held_item = null
+	for item in held_items:
+		item.release_puppeteer.rpc()
+	held_items = []
 
 func get_mouse_scroll() -> int:
 	var _pressed = func(name):
@@ -89,7 +93,7 @@ func _reset_flags():
 	is_ruler_updating = false
 
 func _process_grab(dt, raycast):
-	if held_item:
+	if held_items:
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 			release_held()
 			return
@@ -102,9 +106,12 @@ func _process_grab(dt, raycast):
 		const HOVER_DISTANCE = 1.3
 		var target = raycast['position'] + HOVER_DISTANCE * Vector3.UP
 		
-		direction = target - held_item.position
-		held_item.linear_velocity = direction * K
-		
+		for i in range(held_items.size()):
+			var item = held_items[i]
+			var origin = held_origins[i]
+			direction = (target + origin) - item.global_position
+			item.linear_velocity = direction * K
+
 		if Input.is_action_just_pressed("Do"):
 			release_held()
 	else:
@@ -173,7 +180,7 @@ func _process_select(dt, raycast):
 	var select_end = get_viewport().get_mouse_position()
 	var select_min = Vector2.ZERO
 	select_min.x = min(select_begin.x, select_end.x)
-	select_min.y = min(select_begin.y, select_begin.y)
+	select_min.y = min(select_begin.y, select_end.y)
 	var select_max = select_begin + select_end - select_min
 	var size = select_max - select_min
 	selection.position = select_min
@@ -202,7 +209,18 @@ func _process_select(dt, raycast):
 		var query := PhysicsShapeQueryParameters3D.new()
 		query.shape = shape
 		var result = space.intersect_shape(query, 128)
-		print(result)
+		
+		if result:
+			held_items = []
+			held_origins = []
+			var origin_center = Vector3.ZERO
+			for res in result:
+				if res['collider'] is InteractibleMiniature:
+					held_items.append(res['collider'])
+					origin_center += res['collider'].global_position
+			origin_center /= held_items.size()
+			for item in held_items:
+				held_origins.append(item.global_position - origin_center)
 		_switch_to_mode(MODE_GRAB)
 
 func _process_mode(dt, raycast):
@@ -229,8 +247,9 @@ func _update_status_text():
 	status_label.text = ""
 	if mode == MODE_GRAB:
 		var held_name = "_"
-		if held_item:
-			held_name = held_item.display_name()
+		# TODO: handle multiple held items
+		if held_items:
+			held_name = held_items[0].display_name()
 		status_label.text += "held: " + held_name + "\n"
 	elif mode == MODE_RULER:
 		status_label.text += "extent: " + str(floor(_max_ruler_extension())) + "\n"
@@ -316,17 +335,17 @@ func _hover_raycast():
 	
 	var from = self.global_position
 	var to = from + camera.project_ray_normal(mouse_pos) * INTERACTION_RAY_LENGTH
-	if held_item:
-		held_item.linear_velocity = Vector3.ZERO
-		held_item.angular_velocity = Vector3.ZERO
 	var space = get_world_3d().direct_space_state
 
 	var query = PhysicsRayQueryParameters3D.new()
 	query.from = from
 	query.to = to
 	query.collide_with_areas = false
-	if held_item:
-		query.exclude = Array([held_item.get_rid()])
+	if held_items:
+		var exclude = []
+		for item in held_items:
+			exclude.append(item.get_rid())
+		query.exclude = exclude
 	
 	return space.intersect_ray(query)
 
