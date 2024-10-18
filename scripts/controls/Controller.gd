@@ -4,6 +4,7 @@ extends Node3D
 @onready var hover_label = $"Camera/Canvas/Hover Label"
 @onready var camera = $"Camera"
 @onready var asset_library = $"Camera/Canvas/Asset Library"
+@onready var selection = $Camera/Canvas/Selection
 
 const EPSILON = 0.000001
 
@@ -22,6 +23,7 @@ enum {
 	MODE_GRAB,
 	MODE_RULER,
 	MODE_SPAWN,
+	MODE_SELECT,
 	amount_of_modes
 }
 
@@ -48,6 +50,9 @@ var is_ruler_updating = false
 @export var SPAWN_OVERLAY_SHADER: ShaderMaterial = null
 const SPAWN_ROTATION_SPEED_DEG_PER_S = 720
 var spawn_rotation_deg = 0
+
+# MODE_SELECT
+var select_begin := Vector2.ZERO
 
 func try_grab(result):
 	if result:
@@ -164,11 +169,48 @@ func _process_spawn(dt, raycast):
 			preview.rotation
 		)
 
+func _process_select(dt, raycast):
+	var select_end = get_viewport().get_mouse_position()
+	var select_min = Vector2.ZERO
+	select_min.x = min(select_begin.x, select_end.x)
+	select_min.y = min(select_begin.y, select_begin.y)
+	var select_max = select_begin + select_end - select_min
+	var size = select_max - select_min
+	selection.position = select_min
+	selection.size = size
+
+	if Input.is_action_just_released("Do"):
+		var vertices = PackedVector3Array()
+		var positions = [
+			select_min,
+			select_max,
+			Vector2(select_min.x, select_max.y),
+			Vector2(select_max.x, select_min.y)
+		]
+		
+		var points = PackedVector3Array()
+		for p in positions:
+			var v = camera.project_ray_normal(p)
+			var w = v * INTERACTION_RAY_LENGTH
+			points.push_back(v + camera.global_position)
+			points.push_back(w + camera.global_position)
+
+		var shape = ConvexPolygonShape3D.new()
+		shape.points = points
+
+		var space = get_world_3d().direct_space_state
+		var query := PhysicsShapeQueryParameters3D.new()
+		query.shape = shape
+		var result = space.intersect_shape(query, 128)
+		print(result)
+		_switch_to_mode(MODE_GRAB)
+
 func _process_mode(dt, raycast):
 	var lookup = {
 		MODE_GRAB: _process_grab,
 		MODE_RULER: _process_ruler,
 		MODE_SPAWN: _process_spawn,
+		MODE_SELECT: _process_select
 	}
 	lookup[mode].call(dt, raycast)
 
@@ -179,6 +221,8 @@ func _mode_to_str() -> String:
 		return "Ruler"
 	elif mode == MODE_SPAWN:
 		return "Spawn"
+	elif mode == MODE_SELECT:
+		return "Select"
 	return "?????"
 
 func _update_status_text():
@@ -198,6 +242,8 @@ func _update_status_text():
 
 func _update_hover_text(result):
 	hover_label.text = ""
+	if mode == MODE_SELECT:
+		return
 	if not result or not (result['collider'] is Interactible):
 		return
 	if result['collider'] is RigidBody3D:
@@ -301,6 +347,10 @@ func _handle_poke(result: Dictionary):
 				_handle_poke_freeze(target)
 
 func _switch_to_mode(new_mode):
+	selection.visible = false
+	if new_mode == MODE_SELECT:
+		select_begin = get_viewport().get_mouse_position()
+		selection.visible = true
 	$"Spawn Preview/Preview Mesh".mesh = null
 	mode = new_mode
 
@@ -309,8 +359,6 @@ func _handle_mode_switching():
 		_switch_to_mode(MODE_GRAB)
 	elif Input.is_action_just_pressed("Ruler Mode"):
 		_switch_to_mode(MODE_RULER)
-	elif Input.is_action_just_pressed("Spawn Mode"):
-		_switch_to_mode(MODE_SPAWN)
 
 func _display_ruler():
 	var a = $Ruler/A.global_position
@@ -352,6 +400,10 @@ func _sync_network():
 	if is_ruler_updating and is_ruler_valid:
 		sync_ruler.rpc($Ruler/A.global_position, $Ruler/B.global_position)
 
+func _handle_select_mode_switch():
+	if Input.is_key_pressed(KEY_SHIFT) and Input.is_action_just_pressed("Do"):
+		_switch_to_mode(MODE_SELECT)
+
 func _process(dt: float) -> void:
 	_reset_flags()
 	_display_ruler()
@@ -360,6 +412,7 @@ func _process(dt: float) -> void:
 	_toggle_asset_library()
 	if _is_asset_library_open():
 		return
+	_handle_select_mode_switch()
 	_handle_mode_switching()
 	_update_status_text()
 	_handle_toggles()
