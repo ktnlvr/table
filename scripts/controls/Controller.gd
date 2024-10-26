@@ -66,7 +66,8 @@ func try_grab(result):
 				target.freeze = false
 			if target.freeze:
 				return
-			var held_item = result['collider']
+
+			var held_item = target
 			held_item.angular_velocity = Vector3.ZERO
 			held_item.linear_velocity = Vector3.ZERO
 			held_items = [held_item]
@@ -76,6 +77,7 @@ func release_held():
 	for item in held_items:
 		item.release_puppeteer.rpc()
 	held_items = []
+	held_origins = []
 
 func get_mouse_scroll() -> int:
 	var _pressed = func(name):
@@ -187,7 +189,6 @@ func _process_select(dt, raycast):
 	selection.size = size
 
 	if Input.is_action_just_released("Do"):
-		var vertices = PackedVector3Array()
 		var positions = [
 			select_min,
 			select_max,
@@ -221,6 +222,7 @@ func _process_select(dt, raycast):
 			origin_center /= held_items.size()
 			for item in held_items:
 				held_origins.append(item.global_position - origin_center)
+				item.take_puppeteer.rpc()
 		_switch_to_mode(MODE_GRAB)
 
 func _process_mode(dt, raycast):
@@ -366,9 +368,10 @@ func _handle_poke(result: Dictionary):
 				_handle_poke_freeze(target)
 	if held_items:
 		if Input.is_action_just_pressed("Reroll"):
+			release_held()
 			for item in held_items:
 				_handle_poke_reroll(item)
-			release_held()
+
 
 func _switch_to_mode(new_mode):
 	selection.visible = false

@@ -20,3 +20,4 @@ face_values = {
 9: 5,
 11: 4
 }
+grounded_center_of_mass = false

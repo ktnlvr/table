@@ -16,3 +16,4 @@ _mesh = ExtResource("1_q11ae")
 material = SubResource("StandardMaterial3D_oytmu")
 density = 1.0
 face_values = {}
+grounded_center_of_mass = false
